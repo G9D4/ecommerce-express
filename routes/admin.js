@@ -10,6 +10,7 @@ router.post('/crear-producto', usuarioController.isLoggedIn, adminController.pos
 
 router.get('/productos', usuarioController.isLoggedIn, adminController.getProductos);
 
+
 // Cambia la ruta de editar producto para incluir el ID del producto
 router.get('/editar-producto/:id', usuarioController.isLoggedIn, adminController.getEditProductos);
 router.post('/editar-producto', usuarioController.isLoggedIn, adminController.postEditProductos);

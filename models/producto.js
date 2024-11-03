@@ -19,8 +19,7 @@ const productoSchema = new Schema({
     required: true
   },
   caracteristicas: {
-    type: String,
-    required: true
+    type: Array,
   },
   categoria_id: {
     type: Schema.Types.ObjectId,

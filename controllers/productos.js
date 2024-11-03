@@ -8,7 +8,7 @@ const Usuario = require("../models/usuario");
 
 exports.getProductos = async (req, res) => {
   const categoria_ruta = req.params.categoria_ruta? req.params.categoria_ruta:null; 
-  const categorias=await Categoria.find().then(categorias => {return categorias})
+  const categorias=await Categoria.find().then(categorias => {return categorias});
   const categoria_id=categoria_ruta? categorias.find(x=>x.ruta==categoria_ruta):null;
 
     Producto.find(categoria_id? {categoria_id:categoria_id}:{})
@@ -16,14 +16,12 @@ exports.getProductos = async (req, res) => {
           productos.forEach(producto => {
             producto.categoria = categorias.find(x => x._id.toString() == producto.categoria_id.toString()).categoria;
           })
-
         res.render('tienda/index', {
             prods: productos,
             titulo: "Productos de la tienda",
             path: `/${categoria_ruta || ""}`,
             // autenticado: req.session.autenticado
         });
-
     })
     .catch(err => console.log(err));
 

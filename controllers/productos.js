@@ -1,21 +1,31 @@
+const { ObjectId } = require("mongodb");
+
 const Producto = require("../models/producto");
+const Categoria = require("../models/categoria");
 const Carrito = require("../models/carrito");
 const Pedido = require("../models/pedido");
 const Usuario = require("../models/usuario");
 
 exports.getProductos = async (req, res) => {
-  const categorias = await Producto.getCategorias();
-  const categoria_ruta = req.params.categoria_ruta; // Obtener la categoría desde los parámetros de la ruta
-  const productos = await Producto.fetchAll(categoria_ruta);
-  const titulo = "Página principal de la Tienda";
-  productos.forEach(producto => {
-    producto.categoria = categorias.find(x => x._id.toString() == producto.categoria_id.toString()).categoria;
-  })
-  res.render("tienda/index", {
-    prods: productos,
-    titulo: titulo,
-    path: `/${categoria_ruta || ""}`,
-  });
+  const categoria_ruta = req.params.categoria_ruta? req.params.categoria_ruta:null; 
+  const categorias=await Categoria.find().then(categorias => {return categorias})
+  const categoria_id=categoria_ruta? categorias.find(x=>x.ruta==categoria_ruta):null;
+
+    Producto.find(categoria_id? {categoria_id:categoria_id}:{})
+    .then(productos => {
+          productos.forEach(producto => {
+            producto.categoria = categorias.find(x => x._id.toString() == producto.categoria_id.toString()).categoria;
+          })
+
+        res.render('tienda/index', {
+            prods: productos,
+            titulo: "Productos de la tienda",
+            path: `/${categoria_ruta || ""}`,
+            // autenticado: req.session.autenticado
+        });
+
+    })
+    .catch(err => console.log(err));
 
 };
 

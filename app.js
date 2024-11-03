@@ -1,3 +1,7 @@
+const MONGODB_URI='mongodb+srv://santaaparicioc:typing1234@cluster0.9o6gj.mongodb.net/samsung?retryWrites=true&w=majority'
+
+const mongoose = require('mongoose');
+
 const path = require('path');
 
 const express = require('express');
@@ -40,5 +44,29 @@ app.use(ecommerceRouter);
 app.use((req, res, next) => {
     res.status(404).sendFile(path.join(raizDir, 'views', '404.ejs'));
 })
+
 const port=3000;
-app.listen(port,(e)=>{console.log(`...running port ${port}`)});
+mongoose
+  .connect(MONGODB_URI)
+  .then(result => {
+    // console.log(result)
+
+    // Usuario.findOne().then(usuario => {
+    //     if (!usuario) {
+    //       const usuario = new Usuario({
+    //         nombre: 'Juan',
+    //         email: 'juan@gmail.com',
+    //         carrito: {
+    //           items: []
+    //         }
+    //       });
+    //       usuario.save();
+    //     }
+    //   });
+    app.listen(port,(e)=>{console.log(`...running port ${port}`)});
+  })
+  .catch(err => {
+    console.log(err);
+  });
+
+

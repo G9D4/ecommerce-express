@@ -1,40 +1,44 @@
-const jwt = require("jsonwebtoken");
+// const jwt = require("jsonwebtoken");
 const Usuario = require("../models/usuario");
 const bcrypt = require('bcryptjs');
 
 
-const jwt_secret = "grupo-4";
+// const jwt_secret = "grupo-4";
 
 let esPasswordComplejo = (password) => {
   return password.length > 7;
 }
 
 exports.getLogin = async (req, res, next) => {
+  let mensaje = req.flash('error');
+  mensaje=mensaje.length > 0?  mensaje[0]:null;
+
   res.render("login-usuario", {
     titulo: "Inicio de sesión del cliente",
     path: "/",
+    mensajeError: mensaje
   });
 };
 
 
-exports.isLoggedIn = async (req, res, next) => {
-  if (req.cookies.jwt) {
-    try {
-      const token = req.cookies.jwt;
-      const decoded = jwt.verify(token, jwt_secret);
-      const user = await Usuario.findById(decoded.id);
-      if (user) {
-        const currentUser = user;
-        res.locals.user = currentUser;
-        return next();
-      }
-      return next();
-    } catch (err) {
-      return next();
-    }
-  }
-  return next();
-};
+// exports.isLoggedIn = async (req, res, next) => {
+//   if (req.cookies.jwt) {
+//     try {
+//       const token = req.cookies.jwt;
+//       const decoded = jwt.verify(token, jwt_secret);
+//       const user = await Usuario.findById(decoded.id);
+//       if (user) {
+//         const currentUser = user;
+//         res.locals.user = currentUser;
+//         return next();
+//       }
+//       return next();
+//     } catch (err) {
+//       return next();
+//     }
+//   }
+//   return next();
+// };
 
 exports.postLogin = async (req, res, next) => {
     const { email, password } = req.body;
@@ -42,7 +46,7 @@ exports.postLogin = async (req, res, next) => {
     .then(usuario => {
       if (!usuario) {
         req.flash('error', 'El usuario no existe')
-        return res.redirect('/ingresar');
+        return res.redirect('/usuario/login');
       }
       bcrypt.compare(password, usuario.password)
         .then(hayCoincidencia => {
@@ -55,32 +59,11 @@ exports.postLogin = async (req, res, next) => {
             })
           }
           req.flash('error', 'Las credenciales son invalidas')
-          res.redirect('/ingresar');
+          res.redirect('/usuario/login');
         })
         .catch(err => console.log(err));
       })
 
-  // if (!(email && password)) {
-  //   return res
-  //     .status(404)
-  //     .json({ error: "Se requiere todos los campos llenos" });
-  // }
-
-  // const user = await Usuario.findByEmail(email);
-
-  // if (user && user.password == password) {
-  //   const token = jwt.sign({ id: user._id }, jwt_secret, {
-  //     expiresIn: "120d",
-  //   });
-  //   const cookieOptions = {
-  //     expires: new Date(Date.now() + 86400000), // Cookie expira en un dia
-  //     httpOnly: true,
-  //   };
-  //   res.cookie(`jwt`, token, cookieOptions);
-  //   res.redirect("/");
-  // } else {
-  //   return res.status(400).json({ error: "usuario no encontrado" });
-  // }
 };
 
 exports.postLogout = async (req, res, next) => {

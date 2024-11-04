@@ -11,16 +11,15 @@ exports.getProductos = async (req, res) => {
   const categorias=await Categoria.find().then(categorias => {return categorias});
   const categoria_id=categoria_ruta? categorias.find(x=>x.ruta==categoria_ruta):null;
 
-    Producto.find(categoria_id? {categoria_id:categoria_id}:{})
+    Producto.find(categoria_id? {categoria_id:categoria_id}:{}).populate('categoria_id')
     .then(productos => {
-          productos.forEach(producto => {
-            producto.categoria = categorias.find(x => x._id.toString() == producto.categoria_id.toString()).categoria;
-          })
+         productos.forEach(producto => {producto.categoria = producto.categoria_id.categoria})
+
         res.render('tienda/index', {
             prods: productos,
             titulo: "Productos de la tienda",
             path: `/${categoria_ruta || ""}`,
-            // autenticado: req.session.autenticado
+            autenticado: req.session.autenticado
         });
     })
     .catch(err => console.log(err));
@@ -28,59 +27,51 @@ exports.getProductos = async (req, res) => {
 };
 
 exports.getCarrito = async (req, res, next) => {
+
+  req.usuario
+  .populate('carrito.productos.idProducto')
+  .then(usuario => {
+      const productos = usuario.carrito.productos;
+      productos.forEach(x=>x.dataProducto=x.idProducto);
+      
+      console.log('productos',productos)
+      res.render('tienda/carrito', {
+          path: '/carrito',
+          titulo: 'Mi Carrito',
+          productos: productos,
+          autenticado: req.session.autenticado
+      });
+  })
+  .catch(err => console.log(err));
   
-  const user = res.locals.user;
-  const userId = user._id;
-
-  const carrito = await Carrito.getCarrito(userId);
-
-  const productos = await Producto.fetchAll();
-
-  const productosCarrito = [];
-  if (carrito) {
-    for (producto of productos) {
-      const productoEnCarrito = carrito.find((prod) =>
-        prod._id.equals(producto._id)
-      );
-      if (productoEnCarrito) {
-        productosCarrito.push({
-          dataProducto: producto,
-          cantidad: productoEnCarrito.cantidad,
-          nombreproducto: productoEnCarrito.nombreproducto,
-        });
-      }
-    }
-  }
-
-  res.render("tienda/carrito", {
-    titulo: "Mi carrito",
-    path: "/carrito",
-    productos: productosCarrito,
-  });
 };
 
 exports.postCarrito = async (req, res) => {
   
-  const user = res.locals.user;
+  // const user = res.locals.user;
   const idProducto = req.body.idProducto;
   const producto = await Producto.findById(idProducto);
-  const cantidad = Number(req.body.quantity);
-  await Carrito.agregarProducto(
-    user._id,
-    producto._id,
-    producto.precio,
-    producto.nombreproducto,
-    cantidad
-  );
-  res.redirect("/carrito");
+  const cantidad = req.body.quantity!=''? Number(req.body.quantity):null;
+
+  Producto.findById(producto._id)
+  .then(producto => {
+      return req.usuario.agregarAlCarrito(producto,cantidad);
+  })
+  .then(result => {
+      console.log(result);
+      res.redirect('/carrito');
+  })
+  .catch(err => console.log(err));
 };
 
 exports.postEliminarProductoCarrito = async (req, res) => {
   
-  const user = res.locals.user;
   const idProducto = req.body.idProducto;
-  await Carrito.eliminarProducto(user._id, idProducto);
-  res.redirect("/carrito");
+    req.usuario.deleteProductoDelCarrito(idProducto)
+        .then(result => {
+            res.redirect('/carrito');
+        })
+        .catch(err => console.log(err));
 };
 
 exports.getProducto = (req, res) => {
@@ -96,30 +87,41 @@ exports.getProducto = (req, res) => {
 
 exports.getPedidos = async(req, res, next) => {
 
-  const userId = res.locals.user._id;
-  const userPedidos = await Pedido.fetchAll(userId);
+   Pedido.find({'idUsuario': req.usuario._id}).populate('productos.idProducto')
+  .then(pedidos => {
+    // console.log('pedidos',pedidos.productos)
+    pedidos.forEach(x=>x.productos.forEach(y=>{y.nombreproducto=y.idProducto.nombreproducto}))
 
-  try {
-    res.render('tienda/pedidos', {
-        path: '/pedidos',
-        titulo: 'Mis Pedidos',
-        pedidos: userPedidos
-    });
-  }
-  catch { console.log(err) } 
+      res.render('tienda/pedidos', {
+          path: '/pedidos',
+          titulo: 'Mis Pedidos',
+          pedidos: pedidos,
+          autenticado: req.session.autenticado
+      });
+  })
+  .catch(err => console.log(err));
+
 };
 
 exports.postPedido = async (req, res, next) => {
-  const userId = res.locals.user._id;
-  const carrito = await Carrito.getCarrito(userId);
-
-  const pedido = new Pedido(null, userId, carrito)
-  
-  try {
-    await pedido.save();
-    await Usuario.updateCarrito(userId, null)
-    res.redirect('/pedidos');
-  } catch (error) {
-    console.log(error);
-  }
+  req.usuario
+        .populate('carrito.productos.idProducto')
+        .then(usuario => {
+            const productos = usuario.carrito.productos.map(i => {
+            
+              return { cantidad: i.cantidad, idProducto: new ObjectId( i.idProducto._doc._id ) };
+            });
+            const pedido = new Pedido({
+              idUsuario:  new ObjectId(req.usuario._id),
+              productos: productos
+            });
+            return pedido.save();
+          })
+          .then(result => {
+            return req.usuario.limpiarCarrito();
+          })
+          .then(() => {
+            res.redirect('/pedidos');
+          })
+          .catch(err => console.log(err));
 }; 

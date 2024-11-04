@@ -40,10 +40,11 @@ exports.postCrearProducto = async (req, res, next) => {
 exports.getProductos = async (req, res, next) => {
   try {
     const categorias=await Categoria.find().then(categorias => {return categorias})
-    const productos = await Producto.find().then(productos => {return productos})
-    productos.forEach(producto => {
-      producto.categoria = categorias.find(x => x._id.toString() == producto.categoria_id.toString()).categoria;
-    })
+    const productos = await Producto.find().populate('categoria_id').then(productos => {return productos})
+    productos.forEach(producto => {producto.categoria = producto.categoria_id.categoria})
+    // productos.forEach(producto => {
+    //   producto.categoria = categorias.find(x => x._id.toString() == producto.categoria_id.toString()).categoria;
+    // })
 
     res.render("admin/productos", {
       prods: productos,

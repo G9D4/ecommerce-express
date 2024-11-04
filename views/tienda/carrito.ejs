@@ -8,7 +8,7 @@
             <ul>
                 <% productos.forEach(p => { %>
                     <li>
-                        <p><%= p.nombreproducto %> (<%= p.cantidad %>)</p>
+                        <p><%= p.dataProducto.nombreproducto %> (<%= p.cantidad %>)</p>
                         <form action="/eliminar-producto-carrito" method="POST">
                             <input type="hidden" value="<%= p.dataProducto._id %>" name="idProducto">
                             <button class="btn" type="submit">Eliminar</button>

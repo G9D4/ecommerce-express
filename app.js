@@ -14,10 +14,6 @@ const raizDir = require('./utils/path');
 const bodyParser = require('body-parser');
 const flash = require('connect-flash');
 
-
-// cookieParser
-const cookieParser= require('cookie-parser')
-
 //from project
 const usuarioRouter = require('./routes/usuario')
 const ecommerceRouter = require('./routes/ecommerce')
@@ -65,9 +61,6 @@ app.use((req, res, next) => {
   // res.locals.csrfToken = req.csrfToken();
   next();
 });
-
-// cookie parser
-app.use(cookieParser())
 
 app.use('/admin', adminRouter);
 app.use('/usuario',usuarioRouter)

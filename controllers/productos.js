@@ -2,9 +2,8 @@ const { ObjectId } = require("mongodb");
 
 const Producto = require("../models/producto");
 const Categoria = require("../models/categoria");
-const Carrito = require("../models/carrito");
 const Pedido = require("../models/pedido");
-const Usuario = require("../models/usuario");
+// const Usuario = require("../models/usuario");
 
 exports.getProductos = async (req, res) => {
   const categoria_ruta = req.params.categoria_ruta ? req.params.categoria_ruta : null;

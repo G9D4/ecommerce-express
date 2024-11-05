@@ -26,6 +26,7 @@
                                     </a>
                                     <form action="/admin/eliminar-producto" method="POST">
                                         <input type="hidden" value="<%= producto._id %>" name="idProducto">
+                                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                                         <button class="btn-eliminar" type="submit">
                                             <i class="fa-solid fa-trash-can fa-2x"></i>
                                         </button>

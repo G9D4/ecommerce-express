@@ -13,6 +13,7 @@
                                 </p>
                                 <form action="/eliminar-producto-carrito" method="POST">
                                     <input type="hidden" value="<%= p.dataProducto._id %>" name="idProducto">
+                                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                                     <button class="btn" type="submit">Eliminar</button>
                                 </form>
                             </li>
@@ -20,6 +21,7 @@
                     </ul>
                     <div class="centered">
                         <form action="/crear-pedido" method="POST">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                             <button type="submit" class="btn">Confirmar Pedido!</button>
                         </form>
                     </div>

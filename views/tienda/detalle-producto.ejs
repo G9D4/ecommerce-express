@@ -37,6 +37,7 @@
                                             <label for="quantity">Cantidad:</label>
                                             <input type="number" id="quantity" name="quantity" value="" min="1" />
                                         </div>
+                                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                                         <button class="btn" type="submit">Agregar al carrito</button>
                                         <input type="hidden" name="idProducto" value="<%= producto._id %>">
                                     </form>

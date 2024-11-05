@@ -67,6 +67,7 @@
                             <% } %>
 
                                 <!-- Botón de submit -->
+                                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                                 <div class="button-div">
                                     <button type="submit" class="button-primary">
                                         <% if (modoEdicion) { %>Actualizar producto<% } else { %>Crear producto<% } %>

@@ -42,7 +42,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(raizDir, 'public')));
 app.use(session({ secret: 'algo muy secreto', resave: false, saveUninitialized: false, store: store }));
 app.use(flash());
-app.use(csrfProtection());
+app.use(csrfProtection);
 
 
 app.use((req, res, next) => {

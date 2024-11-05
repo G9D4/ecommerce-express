@@ -50,31 +50,32 @@ main {
 .main-header__item a:active,
 .main-header__item a.active {
   background-color: black;
-  color:white;
+  color: white;
 }
 
 .main-header__item__logo {
-  display: flex; 
-  align-items: center; 
+  display: flex;
+  align-items: center;
   justify-content: center;
-  padding: 0 1rem; 
+  padding: 0 1rem;
 }
 
 .logo-container {
   height: 100%;
-  width: 120px; 
-  cursor: pointer; 
+  width: 120px;
+  cursor: pointer;
 }
 
 .main-header__item__logo img {
-  height: 100%; 
-  width: 100%; 
-  object-fit: contain; 
-  transition: transform 0.3s ease; 
+  height: 100%;
+  width: 100%;
+  object-fit: contain;
+  transition: transform 0.3s ease;
 }
 
 .main-header__item__logo:hover img {
-  transform: scale(1.1); /* Aumenta el logo al pasar el mouse */
+  transform: scale(1.1);
+  /* Aumenta el logo al pasar el mouse */
 }
 
 .grid {
@@ -82,8 +83,10 @@ main {
   flex-wrap: wrap;
   justify-content: space-around;
   align-items: stretch;
-  margin-top: 1rem; /* Espaciado superior */
-  gap: 1rem; /* Espacio entre los elementos, ajusta el valor según necesites */
+  margin-top: 1rem;
+  /* Espaciado superior */
+  gap: 1rem;
+  /* Espacio entre los elementos, ajusta el valor según necesites */
 }
 
 .card {
@@ -111,13 +114,13 @@ main {
 }
 
 .card__actions {
-    padding: 1rem;
-    text-align: center;
+  padding: 1rem;
+  text-align: center;
 }
 
 .card__actions button,
 .card__actions a {
-    margin: 0 0.25rem;
+  margin: 0 0.25rem;
 }
 
 .btn {
@@ -145,7 +148,7 @@ main {
 .btn2 {
   font: inherit;
   padding: 10px;
-  background:  #2189FF;
+  background: #2189FF;
   color: white;
   border: none;
   border-radius: 23px;

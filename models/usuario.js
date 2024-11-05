@@ -33,9 +33,9 @@ const usuarioSchema = new Schema({
   }
 });
 
-usuarioSchema.methods.agregarAlCarrito = function(producto,cantidad=null) {
+usuarioSchema.methods.agregarAlCarrito = function (producto, cantidad = null) {
   if (!this.carrito) {
-    this.carrito = {productos: []};
+    this.carrito = { productos: [] };
   }
   const indiceEnCarrito = this.carrito.productos.findIndex(cp => {
     return cp.idProducto.toString() === producto._id.toString();
@@ -44,12 +44,12 @@ usuarioSchema.methods.agregarAlCarrito = function(producto,cantidad=null) {
   const productosActualizados = [...this.carrito.productos];
 
   if (indiceEnCarrito >= 0) {
-    nuevaCantidad = cantidad!=null? (this.carrito.productos[indiceEnCarrito].cantidad + cantidad ) : (this.carrito.productos[indiceEnCarrito].cantidad + 1);
+    nuevaCantidad = cantidad != null ? (this.carrito.productos[indiceEnCarrito].cantidad + cantidad) : (this.carrito.productos[indiceEnCarrito].cantidad + 1);
     productosActualizados[indiceEnCarrito].cantidad = nuevaCantidad;
   } else {
     productosActualizados.push({
       idProducto: producto._id,
-      cantidad: cantidad!=null? cantidad:nuevaCantidad
+      cantidad: cantidad != null ? cantidad : nuevaCantidad
     });
   }
   const carritoActualizado = {
@@ -59,7 +59,7 @@ usuarioSchema.methods.agregarAlCarrito = function(producto,cantidad=null) {
   this.carrito = carritoActualizado;
   return this.save();
 };
-usuarioSchema.methods.deleteProductoDelCarrito = function(idProducto) {
+usuarioSchema.methods.deleteProductoDelCarrito = function (idProducto) {
   const productosActualizados = this.carrito.productos.filter(producto => {
     return producto.idProducto.toString() !== idProducto.toString();
   });
@@ -67,7 +67,7 @@ usuarioSchema.methods.deleteProductoDelCarrito = function(idProducto) {
   return this.save();
 };
 
-usuarioSchema.methods.limpiarCarrito = function() {
+usuarioSchema.methods.limpiarCarrito = function () {
   this.carrito = { productos: [] };
   return this.save();
 };

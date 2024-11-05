@@ -4,12 +4,13 @@
             <li class="main-header__item__logo box-center_flex">
                 <a href="/">
                     <div class="logo-container">
-                        <img src="https://static.vecteezy.com/system/resources/thumbnails/014/018/566/small_2x/samsung-logo-on-transparent-background-free-vector.jpg" alt="Samsung Logo">
+                        <img src="https://static.vecteezy.com/system/resources/thumbnails/014/018/566/small_2x/samsung-logo-on-transparent-background-free-vector.jpg"
+                            alt="Samsung Logo">
                     </div>
                 </a>
-            </li>            
+            </li>
             <li class="main-header__item box-center_flex">
-                <a  href="/categoria/mobile">
+                <a href="/categoria/mobile">
                     Mobile
                 </a>
             </li>
@@ -24,56 +25,59 @@
                 </a>
             </li>
             <li class="main-header__item box-center_flex">
-                <a  href="/categoria/tecnologia_ai">
+                <a href="/categoria/tecnologia_ai">
                     Tecnología AI
                 </a>
             </li>
             <li class="main-header__item box-center_flex">
-                <a  href="/categoria/ventas_especiales">
+                <a href="/categoria/ventas_especiales">
                     Ventas especiales
                 </a>
             </li>
-            <% if (typeof user == 'object' && user.isadmin) { %>
+            <% if (typeof user=='object' && user.isadmin) { %>
                 <li class="main-header__item box-center_flex">
                     <a class="<%= path === '/admin/productos' ? 'active' : '' %>" href="/admin/productos">
                         Admin Productos
                     </a>
                 </li>
-            <% } %>  
-            <% if (typeof user == 'object' && user) { %>
-                <form class="box-center_flex" action="/usuario/logout" method="POST">
-                    <a  class="box-center_flex " >
-                        <button type="submit" style="background-color:transparent;border:none;font-size:inherit;  cursor:pointer;">
-                            <i class="fa-solid fa-right-from-bracket"></i>
-                        </button>
-                    </a>
-                </form>
-            <% } else{ %>  
-                <li class="main-header__item box-center_flex">
-                    <a class="<%= path === '/login' ? 'active' : '' %>" href="/usuario/login">
-                        <i class="fa-regular fa-user"></i>
-                    </a>
-                </li>
-            <% } %>
-            <% if (typeof user == 'object' && user){ %>
-                <li class="main-header__item box-center_flex">
-                    <a href="/carrito">
-                    <i class="fa-solid fa-cart-shopping"></i>
-                    </a>
-                </li>
-                <li class="main-header__item box-center_flex">
-                    <a href="/pedidos">
-                        <i class="fa-solid fa-bag-shopping"></i>
-                    </a>
-                </li>
-            <% }%>
-            <li class="main-header__item box-center_flex">
-                <a><i class="fa-solid fa-magnifying-glass"></i></a>
-            </li>
-            <% if (typeof user == 'object' && user){ %>
-                <li class="main-header__item box-center_flex"><%= user.nombres %></li>
-            <% }%> 
-            
+                <% } %>
+                    <% if (typeof user=='object' && user) { %>
+                        <form class="box-center_flex" action="/usuario/logout" method="POST">
+                            <a class="box-center_flex ">
+                                <button type="submit"
+                                    style="background-color:transparent;border:none;font-size:inherit;  cursor:pointer;">
+                                    <i class="fa-solid fa-right-from-bracket"></i>
+                                </button>
+                            </a>
+                        </form>
+                        <% } else{ %>
+                            <li class="main-header__item box-center_flex">
+                                <a class="<%= path === '/login' ? 'active' : '' %>" href="/usuario/login">
+                                    <i class="fa-regular fa-user"></i>
+                                </a>
+                            </li>
+                            <% } %>
+                                <% if (typeof user=='object' && user){ %>
+                                    <li class="main-header__item box-center_flex">
+                                        <a href="/carrito">
+                                            <i class="fa-solid fa-cart-shopping"></i>
+                                        </a>
+                                    </li>
+                                    <li class="main-header__item box-center_flex">
+                                        <a href="/pedidos">
+                                            <i class="fa-solid fa-bag-shopping"></i>
+                                        </a>
+                                    </li>
+                                    <% }%>
+                                        <li class="main-header__item box-center_flex">
+                                            <a><i class="fa-solid fa-magnifying-glass"></i></a>
+                                        </li>
+                                        <% if (typeof user=='object' && user){ %>
+                                            <li class="main-header__item box-center_flex">
+                                                <%= user.nombres %>
+                                            </li>
+                                            <% }%>
+
         </ul>
     </nav>
 </header>

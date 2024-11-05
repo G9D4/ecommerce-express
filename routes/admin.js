@@ -2,14 +2,14 @@ const express = require('express');
 
 const router = express.Router();
 
-const usuarioController= require('../controllers/usuario')
-const adminController= require('../controllers/admin')
+const usuarioController = require('../controllers/usuario')
+const adminController = require('../controllers/admin')
 const isAuth = require('../middleware/is-auth');
 
 router.get('/crear-producto', isAuth, adminController.getCrearProducto);
 router.post('/crear-producto', isAuth, adminController.postCrearProducto);
 
-router.get('/productos',isAuth, adminController.getProductos);
+router.get('/productos', isAuth, adminController.getProductos);
 
 
 // Cambia la ruta de editar producto para incluir el ID del producto

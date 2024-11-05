@@ -1,53 +1,63 @@
 <%- include('../includes/head.ejs') %>
-<link rel="stylesheet" href="/css/admin.css">
+    <link rel="stylesheet" href="/css/admin.css">
 
-</head>
+    </head>
 
-<body>
-    <%- include('../includes/navigation.ejs') %>
+    <body>
+        <%- include('../includes/navigation.ejs') %>
 
-    <main>
-        <div class="controls-div">
-            <div class="container-btn-nuevo-producto">
-                <a class="link-nuevo-producto" href="/admin/crear-producto">
-                    <i class="fa-solid fa-circle-plus"></i>
-                    Nuevo producto
-                </a>
-            </div>
-        </div>
-        <% if (prods.length > 0) { %>
-            <div class="grid">
-                <% for (let producto of prods) { %>
-                    <article class="card product-item">
-                        <div class="card__actions">
-                            <a class="btn-editar" href="/admin/editar-producto/<%= producto._id %>?editar=true" class="btn">
-                                <i class="fa-solid fa-pen-to-square fa-2x"></i>
-                            </a>
-                            <form action="/admin/eliminar-producto" method="POST">
-                                <input type="hidden" value="<%= producto._id %>" name="idProducto">
-                                    <button class="btn-eliminar" type="submit">
-                                        <i class="fa-solid fa-trash-can fa-2x"></i>
-                                    </button>
-                            </form>
-                        </div>
-                        <div class="card__image">
-                            <img src="<%= producto.urlImagen %>" alt="<%= producto.nombreproducto %>">
-                        </div>
-                        <header class="card__header">
-                            <h1 class="product__title"><%= producto.nombreproducto %></h1>
-                        </header>
-                        <div class="card__content">
-                            <h2 class="product__price">S/. <%= producto.precio %></h2>
-                            <p class="product__description"><strong>Descripción:</strong> <%= producto.descripcion %></p>
-                            <p class="product__characteristics"><strong>Características:</strong> <%= producto.caracteristicas %></p>
-                            <p class="product__category"><strong>Categoría:</strong> <%= producto.categoria %></p>
-                        </div>
-                    </article>
-                <% } %>
-            </div>
-        <% } else { %>
-            <h1>No hay productos</h1>
-        <% } %>
-    </main>
+            <main>
+                <div class="controls-div">
+                    <div class="container-btn-nuevo-producto">
+                        <a class="link-nuevo-producto" href="/admin/crear-producto">
+                            <i class="fa-solid fa-circle-plus"></i>
+                            Nuevo producto
+                        </a>
+                    </div>
+                </div>
+                <% if (prods.length> 0) { %>
+                    <div class="grid">
+                        <% for (let producto of prods) { %>
+                            <article class="card product-item">
+                                <div class="card__actions">
+                                    <a class="btn-editar" href="/admin/editar-producto/<%= producto._id %>?editar=true"
+                                        class="btn">
+                                        <i class="fa-solid fa-pen-to-square fa-2x"></i>
+                                    </a>
+                                    <form action="/admin/eliminar-producto" method="POST">
+                                        <input type="hidden" value="<%= producto._id %>" name="idProducto">
+                                        <button class="btn-eliminar" type="submit">
+                                            <i class="fa-solid fa-trash-can fa-2x"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                                <div class="card__image">
+                                    <img src="<%= producto.urlImagen %>" alt="<%= producto.nombreproducto %>">
+                                </div>
+                                <header class="card__header">
+                                    <h1 class="product__title">
+                                        <%= producto.nombreproducto %>
+                                    </h1>
+                                </header>
+                                <div class="card__content">
+                                    <h2 class="product__price">S/. <%= producto.precio %>
+                                    </h2>
+                                    <p class="product__description"><strong>Descripción:</strong>
+                                        <%= producto.descripcion %>
+                                    </p>
+                                    <p class="product__characteristics"><strong>Características:</strong>
+                                        <%= producto.caracteristicas %>
+                                    </p>
+                                    <p class="product__category"><strong>Categoría:</strong>
+                                        <%= producto.categoria %>
+                                    </p>
+                                </div>
+                            </article>
+                            <% } %>
+                    </div>
+                    <% } else { %>
+                        <h1>No hay productos</h1>
+                        <% } %>
+            </main>
 
-    <%- include('../includes/end.ejs') %>
+            <%- include('../includes/end.ejs') %>

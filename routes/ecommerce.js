@@ -1,8 +1,9 @@
 const express = require('express');
 
 const router = express.Router();
-const usuarioController= require('../controllers/usuario')
-const productosController= require('../controllers/productos')
+
+const usuarioController = require('../controllers/usuario')
+const productosController = require('../controllers/productos')
 const isAuth = require('../middleware/is-auth')
 
 router.get('/carrito', isAuth, productosController.getCarrito);

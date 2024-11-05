@@ -1,30 +1,32 @@
 <%- include('../includes/head.ejs') %>
-</head>
+    </head>
 
-<body>
-    <%- include('../includes/navigation.ejs') %>
-    <main>
-        <% if (productos.length > 0) { %>
-            <ul>
-                <% productos.forEach(p => { %>
-                    <li>
-                        <p><%= p.dataProducto.nombreproducto %> (<%= p.cantidad %>)</p>
-                        <form action="/eliminar-producto-carrito" method="POST">
-                            <input type="hidden" value="<%= p.dataProducto._id %>" name="idProducto">
-                            <button class="btn" type="submit">Eliminar</button>
+    <body>
+        <%- include('../includes/navigation.ejs') %>
+            <main>
+                <% if (productos.length> 0) { %>
+                    <ul>
+                        <% productos.forEach(p=> { %>
+                            <li>
+                                <p>
+                                    <%= p.dataProducto.nombreproducto %> (<%= p.cantidad %>)
+                                </p>
+                                <form action="/eliminar-producto-carrito" method="POST">
+                                    <input type="hidden" value="<%= p.dataProducto._id %>" name="idProducto">
+                                    <button class="btn" type="submit">Eliminar</button>
+                                </form>
+                            </li>
+                            <% }) %>
+                    </ul>
+                    <div class="centered">
+                        <form action="/crear-pedido" method="POST">
+                            <button type="submit" class="btn">Confirmar Pedido!</button>
                         </form>
-                    </li>
-                <% }) %>    
-            </ul>
-            <div class="centered">
-                <form action="/crear-pedido" method="POST">
-                    <button type="submit" class="btn">Confirmar Pedido!</button>
-                </form>
-            </div>
-        <% } else { %>
-            <h1>No hay productos en el carrito!</h1>
-        <% } %>        
-    </main>
-    
+                    </div>
+                    <% } else { %>
+                        <h1>No hay productos en el carrito!</h1>
+                        <% } %>
+            </main>
 
-<%- include('../includes/end.ejs') %>
+
+            <%- include('../includes/end.ejs') %>

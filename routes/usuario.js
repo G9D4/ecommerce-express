@@ -1,5 +1,6 @@
 const express = require('express');
 const { check, body } = require('express-validator');
+const Usuario = require('../models/usuario');
 
 const router = express.Router();
 
@@ -9,18 +10,19 @@ const usuarioController = require('../controllers/usuario')
 router.post('/login', usuarioController.postLogin);
 router.post('/logout', usuarioController.postLogout);
 router.post(
-    '/signup', 
+    '/signup',
     [
         check('email')
             .isEmail()
             .withMessage('Por favor ingrese un correo válido')
-            .custom((value, {req}) => {
-                if (value === 'no-reply@gmail.com') {
-                    throw new Error('Correo no permitido');
-                }
-                return true;
+            .custom((value, { req }) => {
+                return Usuario.findOne({ email: value }).then(usuarioDoc => {
+                    if (usuarioDoc) {
+                        return Promise.reject('El email ingresado ya existe');
+                    }
+                });
             }
-        ),
+            ),
         body(
             'password',
             'Por favor ingrese una contraseña que tenga letras o números y no menos de 8 caracteres.'
@@ -33,7 +35,7 @@ router.post(
             }
             return true;
         })
-    ], 
+    ],
     usuarioController.postSignup
 );
 router.post('/reset-password', usuarioController.postResetPassword);

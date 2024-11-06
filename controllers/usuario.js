@@ -103,10 +103,10 @@ exports.postSignup = async (req, res, next) => {
   // }
   Usuario.findOne({ email: email })
     .then(usuarioDoc => {
-      if (usuarioDoc) {
-        req.flash('error', 'Dicho email ya esta en uso')
-        return res.redirect('/usuario/signup');
-      }
+      // if (usuarioDoc) {
+      //   req.flash('error', 'Dicho email ya esta en uso')
+      //   return res.redirect('/usuario/signup');
+      // }
       return bcrypt.hash(password, 12)
         .then(passwordCifrado => {
           const usuario = new Usuario({

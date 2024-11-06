@@ -1,6 +1,19 @@
 // const jwt = require("jsonwebtoken");
 const Usuario = require("../models/usuario");
 const bcrypt = require('bcryptjs');
+const nodemailer = require('nodemailer');
+const sendgridTransport = require('nodemailer-sendgrid-transport');
+
+const APIKEY = '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';
+
+const transporter = nodemailer.createTransport(
+  sendgridTransport({
+    auth: {
+      api_key:
+        APIKEY
+    }
+  })
+);
 
 let esPasswordComplejo = (password) => {
   return password.length > 7;
@@ -53,7 +66,6 @@ exports.postLogout = async (req, res, next) => {
 exports.getSignup = async (req, res, next) => {
   let mensaje = req.flash('error');
   mensaje = mensaje.length > 0 ? mensaje[0] : null;
-  console.log('mensaje!!', mensaje)
   res.render("signup-usuario", {
     titulo: "Creación de nueva cuenta",
     mensajeError: mensaje,
@@ -93,6 +105,12 @@ exports.postSignup = async (req, res, next) => {
     })
     .then(result => {
       res.redirect('/usuario/login');
+      return transporter.sendMail({
+        to: email,
+        from: 'proyectosamsungpucp@gmail.com',
+        subject: 'Registro exitoso',
+        html: '<h1>Ha sido registrado exitosamente en proyecto Samsung</h1>'
+      })
     })
     .catch(err => {
       console.log(err);

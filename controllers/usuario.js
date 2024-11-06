@@ -17,9 +17,9 @@ const transporter = nodemailer.createTransport(
   })
 );
 
-let esPasswordComplejo = (password) => {
-  return password.length > 7;
-}
+// let esPasswordComplejo = (password) => {
+//   return password.length > 7;
+// }
 
 exports.getLogin = async (req, res, next) => {
   let mensaje = req.flash('error');
@@ -93,14 +93,14 @@ exports.postSignup = async (req, res, next) => {
     });
   }
 
-  if (password !== password2) {
-    req.flash('error', 'Debe usar el mismo password')
-    return res.redirect('/usuario/signup');
-  }
-  if (!esPasswordComplejo(password)) {
-    req.flash('error', 'El password debe tener longitud minima de 8 caracteres, letras y numeros....')
-    return res.redirect('/usuario/signup');
-  }
+  // if (password !== password2) {
+  //   req.flash('error', 'Debe usar el mismo password')
+  //   return res.redirect('/usuario/signup');
+  // }
+  // if (!esPasswordComplejo(password)) {
+  //   req.flash('error', 'El password debe tener longitud minima de 8 caracteres, letras y numeros....')
+  //   return res.redirect('/usuario/signup');
+  // }
   Usuario.findOne({ email: email })
     .then(usuarioDoc => {
       if (usuarioDoc) {

@@ -26,7 +26,7 @@ exports.postCrearProducto = async (req, res, next) => {
   const descripcion = req.body.descripcion;
   const caracteristicas = req.body.caracteristicas.split(", ");
   const categoria_id = req.body.categoria; // Capturando la categoría
-  const producto = new Producto({ nombreproducto: nombreproducto, precio: precio, descripcion: descripcion, urlImagen: urlImagen, caracteristicas: caracteristicas, categoria_id: categoria_id });
+  const producto = new Producto({ nombreproducto: nombreproducto, precio: precio, descripcion: descripcion, urlImagen: urlImagen, caracteristicas: caracteristicas, categoria_id: categoria_id, idUsuario: req.usuario._id });
 
   producto.save()
     .then(result => {
@@ -90,6 +90,9 @@ exports.postEditProductos = async (req, res, next) => {
   // Actualiza el producto
   Producto.findById(productoId)
     .then(producto => {
+      if (producto.idUsuario.toString() !== req.usuario._id.toString()) {
+        return res.redirect('/');
+    }
       producto.nombreproducto = nombreproducto;
       producto.precio = precio;
       producto.descripcion = descripcion;
@@ -105,9 +108,9 @@ exports.postEditProductos = async (req, res, next) => {
     .catch(err => console.log(err));
 };
 
-exports.getEliminarProducto = async (req, res) => {
+exports.postEliminarProducto = async (req, res) => {
   const idProducto = req.body.idProducto;
-  Producto.findByIdAndDelete(idProducto)
+  Producto.deleteOne({_id: idProducto, idUsuario: req.usuario._id})
     .then(result => {
       console.log('Producto eliminado satisfactoriamente');
       res.redirect('/admin/productos');

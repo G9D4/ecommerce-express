@@ -25,6 +25,11 @@ const productoSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'Categoria',
     required: true
+  },
+  idUsuario: {
+    type: Schema.Types.ObjectId,
+    ref: 'Usuario',
+    required: true
   }
 });
 

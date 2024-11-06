@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const sendgridTransport = require('nodemailer-sendgrid-transport');
+const { validationResult } = require('express-validator');
 
 const APIKEY = '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';
 
@@ -76,6 +77,21 @@ exports.getSignup = async (req, res, next) => {
 
 exports.postSignup = async (req, res, next) => {
   const { nombres, apellidos, email, password, password2 } = req.body;
+
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    console.log(errors.array());
+    return res.status(422).render('signup-usuario', {
+      path: '/usuario',
+      titulo: 'Creación de nueva cuenta',
+      mensajeError: errors.array()[0].msg,
+      datosAnteriores: {
+        email: email,
+        password: password
+      },
+      erroresValidacion: errors.array()
+    });
+  }
 
   if (password !== password2) {
     req.flash('error', 'Debe usar el mismo password')

@@ -1,4 +1,5 @@
 const express = require('express');
+const { check } = require('express-validator');
 
 const router = express.Router();
 
@@ -7,7 +8,11 @@ const usuarioController = require('../controllers/usuario')
 
 router.post('/login', usuarioController.postLogin);
 router.post('/logout', usuarioController.postLogout);
-router.post('/signup', usuarioController.postSignup);
+router.post(
+    '/signup', 
+    check('email').isEmail().withMessage('Por favor ingrese un correo válido'), 
+    usuarioController.postSignup
+);
 router.post('/reset-password', usuarioController.postResetPassword);
 router.post('/new-password', usuarioController.postNewPassword);
 

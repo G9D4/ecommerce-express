@@ -13,7 +13,7 @@
                     <% } %>
                         <div class="container">
                             <div>
-                                <form class="datos" action="/usuario/login" method="POST">
+                                <form class="datos" action="/usuario/login" method="POST" novalidate>
                                     <div id="page-title"><b>Inicio de sesión de cliente</b></div>
                                     <legend class="legend">
                                         <div>Clientes registrados</div>
@@ -22,7 +22,7 @@
                                     </div>
                                     <div>
                                         <label>Correo electrónico <span class="asterisco">*</span></label>
-                                        <input class="inputText" type="text" name="email">
+                                        <input class="inputText" type="email" name="email">
                                     </div>
                                     <div>
                                         <label>Contraseña <span class="asterisco">*</span></label>

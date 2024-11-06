@@ -19,6 +19,8 @@ const usuarioSchema = new Schema({
     type: String,
     required: true
   },
+  tokenReinicio: String,
+  expiracionTokenReinicio: Date,
   isadmin: {
     type: Number,
     required: true

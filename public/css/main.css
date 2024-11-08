@@ -182,6 +182,52 @@ main {
   color: red;
 }
 
+/* HEADER PUBLICIDAD */
+
+.vwrap, .vslide {
+  width: 100%;
+  height: 32px;
+}
+
+.vwrap {
+  overflow: hidden;
+  background-color: #2089FF;
+}
+
+.vslide {
+  display: flex;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-weight: 600;
+}
+
+.vmove {
+  position: relative;
+  bottom: 0;
+}
+
+@keyframes slidev {
+  0% { bottom: 0; }
+  24% { bottom: 0;}
+  25% { bottom: 100%;}
+  49% { bottom: 100%;}
+  50% { bottom: 200%;}
+  74% { bottom: 200%;}
+  75% { bottom: 300%;}
+  99% { bottom: 300%;}
+  100% { bottom: 0;}
+}
+
+.vmove {
+  animation: slidev 12s infinite;
+}
+
+.vmove:hover {
+  animation-play-state: paused;
+}
+
 @media (min-width: 768px) {
   .main-header__nav {
     display: flex;

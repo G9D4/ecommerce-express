@@ -87,7 +87,10 @@
     justify-content: center;
     width: 240px;
     height: 240px;
-    /* align-self: center; */
+}
+
+.card__image img {
+    height: 100%;
 }
 
 .grid {

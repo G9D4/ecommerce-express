@@ -113,9 +113,9 @@ main {
   width: 100%;
 }
 
-.card__image img {
+/* .card__image img {
   width: 100%;
-}
+} */
 
 .card__actions {
   padding: 1rem;

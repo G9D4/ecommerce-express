@@ -1,5 +1,5 @@
 .product-item {
-    display: flex;
+    /* display: flex;
     flex-direction: column;
     justify-content: space-between;
     height: 100%;
@@ -11,31 +11,34 @@
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     background-color: #f9f9f9;
+    align-items: center; */
+    width: 20rem;
+    max-width: 95%;
+    border: 1px solid #e4e4e4;
+    box-shadow: none;
+    border-radius: 25px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .product__title {
     font-size: 1.2rem;
-    font-weight: bold;
     text-align: center;
-    color: #333;
-    margin-bottom: 0.5rem;
+    color: #1f1f1f;
 }
 
 .product__price {
     text-align: center;
-    color: #e67e22;
-    font-size: 1.1rem;
-    font-weight: bold;
-    margin-bottom: 0.8rem;
+    color: #2089ff;
+    margin-bottom: 0.5rem;
 }
 
 .product__description,
 .product__characteristics,
 .product__category {
     text-align: center;
-    color: #555;
-    font-size: 0.9rem;
-    margin-bottom: 0.5rem;
+    color: #626262;
 }
 
 .product__characteristics {
@@ -60,16 +63,57 @@
     cursor: pointer;
 }
 
+.card__actions .btn-secondary {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    margin: 0.5rem auto;
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: #007bff;
+    background-color: #ffffff;
+    border: 1px solid #007bff;
+    border-radius: 5px;
+    text-align: center;
+    text-decoration: none;
+    transition: background-color 0.3s;
+    cursor: pointer;
+}
 
 .card__actions .btn:hover {
     background-color: #0056b3;
 }
 
+.card__actions .btn-secondary:hover {
+    background-color: #d9d9d9;
+}
+
+.card__image {
+    display: flex;
+    justify-content: center;
+    width: 240px;
+    height: 240px;
+    padding-top: 16px;
+}
+
 .card__image img {
+    height: 100%;
+}
+
+.card__header {
+    padding: 0px 1rem 1.5rem;
+}
+
+/* .card__image img {
     width: 100%;
     border-radius: 8px;
     object-fit: cover;
     margin-bottom: 0.8rem;
+} */
+
+.card__content {
+    gap: 16px;
+    display: flex;
+    flex-direction: column;
 }
 
 .card_content {

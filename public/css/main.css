@@ -25,6 +25,8 @@ main {
   height: 100%;
   display: flex;
   align-items: center;
+  width: 100%;
+  justify-content: space-between;
 }
 
 .main-header__item-list {
@@ -32,10 +34,11 @@ main {
   margin: 0;
   padding: 0;
   display: flex;
+  gap: 16px;
 }
 
 .main-header__item {
-  margin: 0 1rem;
+  margin: 0;
   padding: 0;
 }
 
@@ -43,7 +46,8 @@ main {
   padding: 5px;
   text-decoration: none;
   color: black;
-  border-radius: 12px;
+  border-radius: 24px;
+  text-align: center;
 }
 
 .main-header__item a:hover,

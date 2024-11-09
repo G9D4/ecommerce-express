@@ -184,6 +184,9 @@ main {
 
 .footer {
   border-top: 1px solid #757575;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
 }
 
 .footer-links {

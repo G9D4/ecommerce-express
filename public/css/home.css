@@ -1,3 +1,30 @@
+main {
+    display: flex;
+    flex-direction: column;
+    gap:64px;
+}
+
+/* SECCION DE CARDS */
+
+.selected-products {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.grid {
+    flex-wrap: nowrap !important;
+}
+
+.product-item {
+    width: auto !important;
+}
+
+.card__image {
+    width: 200px !important;
+    height: 200px !important;
+}
+
 /* CARDS AYUDA COMPRAS */
 
 .cards-info-shop {
@@ -93,6 +120,11 @@
 }
 
 @media only screen and (max-width: 1023px) {
+    .grid {
+        flex-wrap: wrap !important;
+        justify-content: center;
+    }
+
     .cards-info-shop {
         display: flex;
         gap: 16px;

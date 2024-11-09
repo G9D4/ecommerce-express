@@ -1,5 +1,6 @@
 <%- include('../includes/head.ejs') %>
     <link rel="stylesheet" href="/css/home.css">
+    <link rel="stylesheet" href="/css/producto.css">
 
     </head>
 
@@ -25,6 +26,34 @@
                 </section>
                 <section class="selected-products">
                     <h2>Novedades</h2>
+                    <% if (prods.length> 0) { %>
+                        <div class="grid">
+                            <% for (let producto of prods.slice(0, 4)) { %>
+                                <article class="card product-item">
+                                    <div class="card__image">
+                                        <a href="/productos/<%= producto._id %>">
+                                            <img src="<%= producto.urlImagen %>" alt="<%= producto.nombreproducto %>">
+                                        </a>
+                                    </div>
+                                    <header class="card__header">
+                                        <h1 class="product__title">
+                                            <%= producto.nombreproducto %>
+                                        </h1>
+                                    </header>
+                                    <div class="card__content">
+                                        <h2 class="product__price">S/. <%= producto.precio %></h2>
+                                        <div class="card__actions">
+                                            <% if (typeof user=='object' && user){ %>
+                                                <%- include('../includes/agregar-al-carrito.ejs', {producto: producto}) %>
+                                                    <% }%>
+                                        </div>
+                                    </div>
+                                </article>
+                            <% } %>
+                        </div>
+                    <% } else { %>
+                        <h1>No hay productos</h1>
+                    <% } %>
                 </section>
                 <section>
                     <div class="hwrap">
@@ -46,6 +75,34 @@
                 </section>
                 <section class="selected-products">
                     <h2>Los más elegidos</h2>
+                    <% if (prods.length> 0) { %>
+                        <div class="grid">
+                            <% for (let producto of prods.reverse().slice(0, 4)) { %>
+                                <article class="card product-item">
+                                    <div class="card__image">
+                                        <a href="/productos/<%= producto._id %>">
+                                            <img src="<%= producto.urlImagen %>" alt="<%= producto.nombreproducto %>">
+                                        </a>
+                                    </div>
+                                    <header class="card__header">
+                                        <h1 class="product__title">
+                                            <%= producto.nombreproducto %>
+                                        </h1>
+                                    </header>
+                                    <div class="card__content">
+                                        <h2 class="product__price">S/. <%= producto.precio %></h2>
+                                        <div class="card__actions">
+                                            <% if (typeof user=='object' && user){ %>
+                                                <%- include('../includes/agregar-al-carrito.ejs', {producto: producto}) %>
+                                                    <% }%>
+                                        </div>
+                                    </div>
+                                </article>
+                            <% } %>
+                        </div>
+                    <% } else { %>
+                        <h1>No hay productos</h1>
+                    <% } %>
                 </section>
                 <section class="cards-info-shop">
                     <div class="card-info">

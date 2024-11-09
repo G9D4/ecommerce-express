@@ -182,6 +182,44 @@ main {
   color: red;
 }
 
+.footer {
+  border-top: 1px solid #757575;
+}
+
+.footer-links {
+  display: flex;
+  gap: 60px;
+  justify-content: center;
+  padding: 40px 0;
+}
+
+.footer-links_columnas {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.footer-links_redes {
+  display: flex;
+  gap: 16px;
+}
+
+.footer-copyright {
+  display: flex;
+  background-color: #757575;
+  color: white;
+  font-size: 10px;
+  justify-content: space-between;
+  padding: 0 120px;
+}
+
+.footer-copyright_links {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+}
+
 /* HEADER PUBLICIDAD */
 
 .vwrap, .vslide {

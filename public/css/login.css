@@ -52,6 +52,10 @@ label {
     cursor: pointer;
 }
 
+.btn-samsung:hover {
+    background-color: #0056b3;
+}
+
 .inputText {
     background: #fff;
     background-clip: padding-box;

@@ -28,7 +28,7 @@ router.post(
             'Por favor ingrese una contraseña que tenga letras o números y no menos de 8 caracteres.'
         )
             .isLength({ min: 8 })
-            .isAlphanumeric(),
+            .matches(/^[A-Za-z0-9_@.\/#$&+-@*]*$/),
         body('password2').custom((value, { req }) => {
             if (value !== req.body.password) {
                 throw new Error('Las contraseñas no coinciden');

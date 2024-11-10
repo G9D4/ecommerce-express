@@ -1,9 +1,11 @@
 const { ObjectId } = require("mongodb");
 const Producto = require("../models/producto");
+const Categoria = require("../models/categoria");
+
 
 exports.getCrearProducto = async (req, res, next) => {
   try {
-    const categorias = await Producto.getCategorias();
+    const categorias = await Categoria.find().then(categorias => { return categorias })
 
     res.render("admin/editar-producto", {
       titulo: "Crear Producto",
@@ -24,32 +26,21 @@ exports.postCrearProducto = async (req, res, next) => {
   const descripcion = req.body.descripcion;
   const caracteristicas = req.body.caracteristicas.split(", ");
   const categoria_id = req.body.categoria; // Capturando la categoría
+  const producto = new Producto({ nombreproducto: nombreproducto, precio: precio, descripcion: descripcion, urlImagen: urlImagen, caracteristicas: caracteristicas, categoria_id: categoria_id, idUsuario: req.usuario._id });
 
-  const producto = new Producto(
-    null,
-    nombreproducto,
-    urlImagen,
-    precio,
-    descripcion,
-    caracteristicas,
-    categoria_id
-  );
+  producto.save()
+    .then(result => {
+      console.log(result);
+      res.redirect('/admin/productos');
+    })
+    .catch(err => console.log(err));
 
-  try {
-    await producto.save();
-    res.redirect("/admin/productos");
-  } catch (error) {
-    console.log(error);
-  }
 };
 
 exports.getProductos = async (req, res, next) => {
   try {
-    const categorias = await Producto.getCategorias();
-    const productos = await Producto.fetchAll();
-    productos.forEach(producto => {
-      producto.categoria = categorias.find(x => x._id.toString() == producto.categoria_id.toString()).categoria;
-    })
+    const productos = await Producto.find().populate('categoria_id').then(productos => { return productos })
+    productos.forEach(producto => { producto.categoria = producto.categoria_id.categoria })
 
     res.render("admin/productos", {
       prods: productos,
@@ -65,7 +56,7 @@ exports.getProductos = async (req, res, next) => {
 exports.getEditProductos = async (req, res, next) => {
 
   try {
-    const categorias = await Producto.getCategorias();
+    const categorias = await Categoria.find().then(categorias => { return categorias })
     const productoId = req.params.id; // Obtiene el ID del producto de los parámetros de la URL
     const producto = await Producto.findById(productoId);
 
@@ -89,33 +80,41 @@ exports.getEditProductos = async (req, res, next) => {
 // Controlador para guardar los cambios del producto editado
 exports.postEditProductos = async (req, res, next) => {
   const productoId = req.body.idProducto; // Obtiene el ID del producto de los parámetros de la URL
-  const updatedData = {
-    nombreproducto: req.body.nombreproducto,
-    precio: Number(req.body.precio),
-    descripcion: req.body.descripcion,
-    urlImagen: req.body.urlImagen,
-    categoria_id: new ObjectId(req.body.categoria),
-    caracteristicas:
-      req.body.caracteristicas != ""
-        ? req.body.caracteristicas.split(",")
-        : null,
-  };
-  // Actualiza el producto
+  const nombreproducto = req.body.nombreproducto;
+  const precio = Number(req.body.precio);
+  const descripcion = req.body.descripcion;
+  const urlImagen = req.body.urlImagen;
+  const categoria_id = new ObjectId(req.body.categoria);
+  const caracteristicas = req.body.caracteristicas != "" ? req.body.caracteristicas.split(",") : null;
 
-  try {
-    await Producto.update(productoId, updatedData);
-    res.redirect("/admin/productos"); // Redirige si la actualización fue exitosa
-  } catch (error) {
-    console.log(error);
-  }
+  // Actualiza el producto
+  Producto.findById(productoId)
+    .then(producto => {
+      if (producto.idUsuario.toString() !== req.usuario._id.toString()) {
+        return res.redirect('/');
+    }
+      producto.nombreproducto = nombreproducto;
+      producto.precio = precio;
+      producto.descripcion = descripcion;
+      producto.urlImagen = urlImagen;
+      producto.categoria_id = categoria_id;
+      producto.caracteristicas = caracteristicas;
+      return producto.save();
+    })
+    .then(result => {
+      console.log('Producto actualizado satisfactoriamente');
+      res.redirect('/admin/productos');
+    })
+    .catch(err => console.log(err));
 };
 
-exports.getEliminarProducto = async (req, res) => {
+exports.postEliminarProducto = async (req, res) => {
   const idProducto = req.body.idProducto;
-  try {
-    await Producto.deleteById(idProducto);
-    res.redirect("/admin/productos"); // Redirige si la actualización fue exitosa
-  } catch (error) {
-    console.log(error);
-  }
+  Producto.deleteOne({_id: idProducto, idUsuario: req.usuario._id})
+    .then(result => {
+      console.log('Producto eliminado satisfactoriamente');
+      res.redirect('/admin/productos');
+    })
+    .catch(err => console.log(err));
+
 };

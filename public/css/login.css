@@ -3,7 +3,7 @@ main {
 }
 
 label {
-    font-weight:bold;
+    font-weight: bold;
 }
 
 .container {
@@ -50,6 +50,10 @@ label {
     letter-spacing: 2.4px;
     border-radius: 100px;
     cursor: pointer;
+}
+
+.btn-samsung:hover {
+    background-color: #0056b3;
 }
 
 .inputText {

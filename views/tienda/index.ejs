@@ -1,40 +1,71 @@
 <%- include('../includes/head.ejs') %>
-<link rel="stylesheet" href="/css/producto.css">
+    <link rel="stylesheet" href="/css/producto.css">
 
-</head>
+    </head>
 
-<body>
-    <%- include('../includes/navigation.ejs') %>
+    <body>
+        <%- include('../includes/header-publicidad.ejs') %>
+        <%- include('../includes/navigation.ejs') %>
 
-    <main>
-        <% if (prods.length > 0) { %>
-            <div class="grid">
-                <% for (let producto of prods) { %>
-                    <article class="card product-item">
-                        <header class="card__header">
-                            <h1 class="product__title"><%= producto.nombreproducto %></h1>
-                        </header>
-                        <div class="card__image">
-                            <img src="<%= producto.urlImagen %>" alt="<%= producto.nombreproducto %>">
-                        </div>
-                        <div class="card__content">
-                            <h2 class="product__price"><strong>Precio: </strong>S/<%= producto.precio %></h2>
-                            <p class="product__description"><strong>Descripción:</strong> <%= producto.descripcion %></p>
-                            <p class="product__characteristics"><strong>Características:</strong> <%= producto.caracteristicas %></p>
-                            <p class="product__category"><strong>Categoría:</strong> <%= producto.categoria %></p>
-                        </div>
-                        <div class="card__actions">
-                            <a href="/productos/<%= producto._id %>" class="btn"> Detalles</a>
-                            <% if (typeof user == 'object' && user){ %>
-                                <%- include('../includes/agregar-al-carrito.ejs', {producto: producto}) %>
-                            <% }%>
-                        </div>
-                    </article>
+            <main>
+                <% if (prods.length> 0) { %>
+                    <div class="grid">
+                        <% for (let producto of prods) { %>
+                            <article class="card product-item">
+                                <!-- <header class="card__header">
+                                    <h1 class="product__title">
+                                        <%= producto.nombreproducto %>
+                                    </h1>
+                                </header>
+                                <div class="card__image">
+                                    <img src="<%= producto.urlImagen %>" alt="<%= producto.nombreproducto %>">
+                                </div>
+                                <div class="card__content">
+                                    <h2 class="product__price"><strong>Precio: </strong>S/<%= producto.precio %>
+                                    </h2>
+                                    <p class="product__description"><strong>Descripción:</strong>
+                                        <%= producto.descripcion %>
+                                    </p>
+                                    <p class="product__characteristics"><strong>Características:</strong>
+                                        <%= producto.caracteristicas %>
+                                    </p>
+                                    <p class="product__category"><strong>Categoría:</strong>
+                                        <%= producto.categoria %>
+                                    </p>
+                                </div> -->
+                                <div class="card__image">
+                                    <a href="/productos/<%= producto._id %>">
+                                        <img src="<%= producto.urlImagen %>" alt="<%= producto.nombreproducto %>">
+                                    </a>
+                                </div>
+                                <header class="card__header">
+                                    <h1 class="product__title">
+                                        <%= producto.nombreproducto %>
+                                    </h1>
+                                </header>
+                                <div class="card__content">
+                                    <h2 class="product__price">S/. <%= producto.precio %></h2>
+                                    <!-- <p class="product__description"><strong>Descripción:</strong>
+                                        <%= producto.descripcion %>
+                                    </p>
+                                    <p class="product__characteristics"><strong>Características:</strong>
+                                        <%= producto.caracteristicas %>
+                                    </p>
+                                    <p class="product__category"><strong>Categoría:</strong>
+                                        <%= producto.categoria %>
+                                    </p> -->
+                                    <div class="card__actions">
+                                        <% if (typeof user=='object' && user){ %>
+                                            <%- include('../includes/agregar-al-carrito.ejs', {producto: producto}) %>
+                                                <% }%>
+                                    </div>
+                                </div>
+                            </article>
+                        <% } %>
+                    </div>
+                <% } else { %>
+                    <h1>No hay productos</h1>
                 <% } %>
-            </div>
-        <% } else { %>
-            <h1>No hay productos</h1>
-        <% } %>
-    </main>
+            </main>
 
-    <%- include('../includes/end.ejs') %>
+            <%- include('../includes/end.ejs') %>

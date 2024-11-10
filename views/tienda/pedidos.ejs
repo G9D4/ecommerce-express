@@ -4,9 +4,10 @@
     </head>
 
     <body>
+        <%- include('../includes/header-publicidad.ejs') %>
         <%- include('../includes/navigation.ejs') %>
             <main>
-                <% if (typeof pedidos == 'object' && pedidos.length==0) { %>
+                <% if (typeof pedidos=='object' && pedidos.length==0) { %>
                     <h1>No ha realizado pedidos</h1>
                     <% } else { %>
                         <ul class="orders">

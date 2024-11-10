@@ -61,6 +61,21 @@
                         <i class="fa-solid fa-cart-shopping"></i>
                     </a>
                 </li>
+                <li class="main-header__item box-center_flex carrito-contenedor">
+                    <a href="/api/carrito" class="cart-icon">
+                        <i class="fa-solid fa-cart-shopping"></i>
+                    </a>
+                    <div class="cart-dropdown">
+                        <!-- Aquí se insertarán dinámicamente los productos -->
+                        <ul class="cart-items">
+                            <!-- Los elementos del carrito irán aquí -->
+                        </ul>
+                        <div class="cart-total">
+                            Total: <span id="cart-total-price">0</span>
+                        </div>
+                        <a href="/carrito" class="view-cart">Ver Carrito</a>
+                    </div>
+                </li>
                 <li class="main-header__item box-center_flex">
                     <a href="/pedidos">
                         <i class="fa-solid fa-bag-shopping"></i>
@@ -86,4 +101,6 @@
             <% }%>
         </ul>
     </nav>
+    <!-- menu de carrito -->
+    <script src="/js/carrito.js"></script>
 </header>

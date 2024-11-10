@@ -141,3 +141,31 @@ exports.postPedido = async (req, res, next) => {
     })
     .catch(err => console.log(err));
 }; 
+
+exports.getCarritoDesplegable = (req, res, next) => {
+  req.usuario
+      .populate('carrito.productos.idProducto')
+      .then(usuario => {
+          const productosCarrito = usuario.carrito.productos.map(item => {
+              return {
+                  id: item.idProducto._id,
+                  nombreproducto: item.idProducto.nombreproducto,
+                  cantidad: item.cantidad,
+                  precio: item.idProducto.precio
+              };
+          });
+
+          const precioTotal = productosCarrito.reduce((total, item) => {
+              return total + item.precio * item.cantidad; // Calcular el precio total del carrito
+          }, 0);
+
+          res.json({
+              productos: productosCarrito,
+              precioTotal: precioTotal
+          });
+      })
+      .catch(err => {
+          console.error(err);
+          res.status(500).json({ error: 'Error al obtener el carrito' });
+      });
+};

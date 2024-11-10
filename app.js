@@ -46,7 +46,7 @@ app.use(csrfProtection);
 
 
 app.use((req, res, next) => {
-  console.log(req.session);
+  // console.log(req.session);
   if (!req.session.usuario) {
     return next();
   }

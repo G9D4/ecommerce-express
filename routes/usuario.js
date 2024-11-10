@@ -29,7 +29,7 @@ router.post(
         )
             .isLength({ min: 8 })
             .isAlphanumeric(),
-        body('passwordConfirmado').custom((value, { req }) => {
+        body('password2').custom((value, { req }) => {
             if (value !== req.body.password) {
                 throw new Error('Las contraseñas no coinciden');
             }

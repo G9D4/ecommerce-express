@@ -18,10 +18,6 @@ const transporter = nodemailer.createTransport(
   })
 );
 
-// let esPasswordComplejo = (password) => {
-//   return password.length > 7;
-// }
-
 exports.getLogin = async (req, res, next) => {
   let mensaje = req.flash('error');
   mensaje = mensaje.length > 0 ? mensaje[0] : null;
@@ -54,21 +50,9 @@ exports.postLogin = async (req, res, next) => {
             erroresValidacion: errors.array()
         });
     }
-
+    
     Usuario.findOne({ email: email })
         .then(usuario => {
-        if (!usuario) {
-            return res.status(422).render('login-usuario', {
-                path: '/usuario',
-                titulo: 'Ingreso de usuario',
-                mensajeError: 'El usuario no existe',
-                datosAnteriores: {
-                    email: email,
-                    password: password
-                },
-                erroresValidacion: []
-            });
-        }
         bcrypt.compare(password, usuario.password)
             .then(hayCoincidencia => {
             if (hayCoincidencia) {
@@ -78,7 +62,7 @@ exports.postLogin = async (req, res, next) => {
                 console.log(err);
                 res.redirect('/')
                 })
-            }
+            }/*
             return res.status(422).render('login-usuario', {
                 path: '/usuario',
                 titulo: 'Ingreso de usuario',
@@ -88,9 +72,11 @@ exports.postLogin = async (req, res, next) => {
                     password: password
                 },
                 erroresValidacion: []
-            });
+            });*/
             })
-            .catch(err => console.log(err));
+            .catch(err => {
+                console.log(err)
+            });
         })
 };
 

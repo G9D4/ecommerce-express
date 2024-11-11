@@ -71,6 +71,7 @@ exports.getSignup = async (req, res, next) => {
   res.render("signup-usuario", {
     titulo: "Creación de nueva cuenta",
     mensajeError: mensaje,
+    erroresValidacion : [],
     path: "/usuario",
   });
 };

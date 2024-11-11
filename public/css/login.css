@@ -76,6 +76,14 @@ label {
     outline: none;
 }
 
+.invalid {
+    border-color: red;
+}
+
+.invalid:focus {
+    border-color: red;
+}
+
 .asterisco {
     color: red;
     font-size: small;

@@ -5,6 +5,7 @@ const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const sendgridTransport = require('nodemailer-sendgrid-transport');
 const { validationResult } = require('express-validator');
+const path = require("path");
 
 const APIKEY = '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';
 
@@ -28,34 +29,45 @@ exports.getLogin = async (req, res, next) => {
   res.render("login-usuario", {
     titulo: "Inicio de sesión del cliente",
     path: "/",
-    mensajeError: mensaje
+    mensajeError: mensaje,
+    erroresValidacion: []
   });
 };
 
 exports.postLogin = async (req, res, next) => {
-  const { email, password } = req.body;
-  Usuario.findOne({ email: email })
-    .then(usuario => {
-      if (!usuario) {
-        req.flash('error', 'El usuario no existe')
-        return res.redirect('/usuario/login');
-      }
-      bcrypt.compare(password, usuario.password)
-        .then(hayCoincidencia => {
-          if (hayCoincidencia) {
-            req.session.autenticado = true;
-            req.session.usuario = usuario;
-            return req.session.save(err => {
-              console.log(err);
-              res.redirect('/')
-            })
-          }
-          req.flash('error', 'Las credenciales son invalidas')
-          res.redirect('/usuario/login');
-        })
-        .catch(err => console.log(err));
-    })
+    const { email, password } = req.body;
 
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(422).render('login-usuario', {
+            path: '/usuario',
+            titulo: 'Ingreso de usuario',
+            mensajeError: errors.array()[0].msg,
+            erroresValidacion: errors.array()
+        });
+    }
+
+    Usuario.findOne({ email: email })
+        .then(usuario => {
+        if (!usuario) {
+            req.flash('error', 'El usuario no existe')
+            return res.redirect('/usuario/login');
+        }
+        bcrypt.compare(password, usuario.password)
+            .then(hayCoincidencia => {
+            if (hayCoincidencia) {
+                req.session.autenticado = true;
+                req.session.usuario = usuario;
+                return req.session.save(err => {
+                console.log(err);
+                res.redirect('/')
+                })
+            }
+            req.flash('error', 'Las credenciales son invalidas')
+            res.redirect('/usuario/login');
+            })
+            .catch(err => console.log(err));
+        })
 };
 
 exports.postLogout = async (req, res, next) => {

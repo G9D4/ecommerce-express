@@ -22,11 +22,21 @@
                                     </legend>
                                     <div>
                                         <label>Nombres <span class="asterisco">*</span></label>
-                                        <input type="text" name="nombres" class="inputText" autocomplete="off" required>
+                                        <input
+                                            type="text"
+                                            name="nombres"
+                                            value="<%= datosAnteriores.nombres %>"
+                                            class="inputText"
+                                            autocomplete="off" required>
                                     </div>
                                     <div>
                                         <label>Apellidos <span class="asterisco">*</span></label>
-                                        <input type="text" name="apellidos" class="inputText" autocomplete="off"
+                                        <input
+                                            type="text"
+                                            name="apellidos"
+                                            value="<%= datosAnteriores.apellidos %>"
+                                            class="inputText"
+                                            autocomplete="off"
                                             required>
                                     </div>
                                 </div>
@@ -39,6 +49,7 @@
                                         <input
                                             type="email"
                                             name="email"
+                                            value="<%= datosAnteriores.email %>"
                                             class="<%= erroresValidacion.find(e => e.path === 'email') ? 'inputText invalid' : 'inputText' %>"
                                             autocomplete="off" required>
                                     </div>
@@ -47,6 +58,7 @@
                                         <input
                                             type="password"
                                             name="password"
+                                            value="<%= datosAnteriores.password %>"
                                             class="<%= erroresValidacion.find(e => e.path === 'password') ? 'inputText invalid' : 'inputText' %>"
                                             autocomplete="off"
                                             required>
@@ -56,6 +68,7 @@
                                         <input
                                             type="password"
                                             name="password2"
+                                            value="<%= datosAnteriores.password2 %>"
                                             class="<%= erroresValidacion.find(e => e.path === 'password2') ? 'inputText invalid' : 'inputText' %>"
                                             autocomplete="off"
                                             required>

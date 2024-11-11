@@ -94,6 +94,13 @@ exports.getSignup = async (req, res, next) => {
     titulo: "Creación de nueva cuenta",
     mensajeError: mensaje,
     erroresValidacion : [],
+    datosAnteriores: {
+      nombres: '',
+      apellidos: '',
+      email: '',
+      password: '',
+      password2: '',
+    },
     path: "/usuario",
   });
 };
@@ -109,8 +116,11 @@ exports.postSignup = async (req, res, next) => {
       titulo: 'Creación de nueva cuenta',
       mensajeError: errors.array()[0].msg,
       datosAnteriores: {
+        nombres: nombres,
+        apellidos: apellidos,
         email: email,
-        password: password
+        password: password,
+        password2: password2,
       },
       erroresValidacion: errors.array()
     });

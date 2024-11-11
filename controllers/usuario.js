@@ -30,6 +30,10 @@ exports.getLogin = async (req, res, next) => {
     titulo: "Inicio de sesión del cliente",
     path: "/",
     mensajeError: mensaje,
+    datosAnteriores: {
+        email: '',
+        password: ''
+    },
     erroresValidacion: []
   });
 };
@@ -43,6 +47,10 @@ exports.postLogin = async (req, res, next) => {
             path: '/usuario',
             titulo: 'Ingreso de usuario',
             mensajeError: errors.array()[0].msg,
+            datosAnteriores: {
+                email: email,
+                password: password
+            },
             erroresValidacion: errors.array()
         });
     }
@@ -50,8 +58,16 @@ exports.postLogin = async (req, res, next) => {
     Usuario.findOne({ email: email })
         .then(usuario => {
         if (!usuario) {
-            req.flash('error', 'El usuario no existe')
-            return res.redirect('/usuario/login');
+            return res.status(422).render('login-usuario', {
+                path: '/usuario',
+                titulo: 'Ingreso de usuario',
+                mensajeError: 'El usuario no existe',
+                datosAnteriores: {
+                    email: email,
+                    password: password
+                },
+                erroresValidacion: []
+            });
         }
         bcrypt.compare(password, usuario.password)
             .then(hayCoincidencia => {
@@ -63,8 +79,16 @@ exports.postLogin = async (req, res, next) => {
                 res.redirect('/')
                 })
             }
-            req.flash('error', 'Las credenciales son invalidas')
-            res.redirect('/usuario/login');
+            return res.status(422).render('login-usuario', {
+                path: '/usuario',
+                titulo: 'Ingreso de usuario',
+                mensajeError: 'Las credenciales son inválidas',
+                datosAnteriores: {
+                    email: email,
+                    password: password
+                },
+                erroresValidacion: []
+            });
             })
             .catch(err => console.log(err));
         })

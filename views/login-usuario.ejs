@@ -25,14 +25,16 @@
                                         <input
                                             class="<%= erroresValidacion.find(e => e.path === 'email') ? 'inputText invalid' : 'inputText' %>"
                                             type="email"
-                                            name="email">
+                                            name="email",
+                                            value="<%= datosAnteriores.email %>">
                                     </div>
                                     <div>
                                         <label>Contraseña <span class="asterisco">*</span></label>
                                         <input
                                             class="<%= erroresValidacion.find(e => e.path === 'password') ? 'inputText invalid' : 'inputText' %>"
                                             type="password"
-                                            name="password">
+                                            name="password",
+                                            value="<%= datosAnteriores.password %>">
                                         <a href="/usuario/reset-password">Olvidé mi contraseña</a>
                                     </div>
                                     <div>

@@ -7,7 +7,19 @@ const router = express.Router();
 const usuarioController = require('../controllers/usuario')
 
 
-router.post('/login', usuarioController.postLogin);
+router.post('/login',
+    [
+        body('email')
+            .isEmail()
+            .withMessage('Por favor ingrese un email válido'),
+        body(
+            'password',
+            'Por favor ingrese una contraseña que tenga letras o números y no menos de 8 caracteres'
+        )
+            .isLength({ min: 8 })
+            .matches(/^[A-Za-z0-9_@.\/#$&+-@*]*$/),
+    ]
+    , usuarioController.postLogin);
 router.post('/logout', usuarioController.postLogout);
 router.post(
     '/signup',

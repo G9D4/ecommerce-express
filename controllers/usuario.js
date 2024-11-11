@@ -93,44 +93,29 @@ exports.postSignup = async (req, res, next) => {
     });
   }
 
-  // if (password !== password2) {
-  //   req.flash('error', 'Debe usar el mismo password')
-  //   return res.redirect('/usuario/signup');
-  // }
-  // if (!esPasswordComplejo(password)) {
-  //   req.flash('error', 'El password debe tener longitud minima de 8 caracteres, letras y numeros....')
-  //   return res.redirect('/usuario/signup');
-  // }
-  Usuario.findOne({ email: email })
-    .then(usuarioDoc => {
-      // if (usuarioDoc) {
-      //   req.flash('error', 'Dicho email ya esta en uso')
-      //   return res.redirect('/usuario/signup');
-      // }
-      return bcrypt.hash(password, 12)
-        .then(passwordCifrado => {
-          const usuario = new Usuario({
-            nombres: nombres,
-            apellidos: apellidos,
-            email: email,
-            password: passwordCifrado,
-            isadmin: 0,
-            carrito: { productos: [] }
-          });
-          return usuario.save();
+  bcrypt.hash(password, 12)
+    .then(passwordCifrado => {
+        const usuario = new Usuario({
+        nombres: nombres,
+        apellidos: apellidos,
+        email: email,
+        password: passwordCifrado,
+        isadmin: 0,
+        carrito: { productos: [] }
         });
+        return usuario.save();
     })
     .then(result => {
-      res.redirect('/usuario/login');
-      return transporter.sendMail({
-        to: email,
-        from: 'proyectosamsungpucp@gmail.com',
-        subject: 'Registro exitoso',
-        html: '<h1>Ha sido registrado exitosamente en proyecto Samsung</h1>'
-      })
+        res.redirect('/usuario/login');
+        return transporter.sendMail({
+          to: email,
+          from: 'proyectosamsungpucp@gmail.com',
+          subject: 'Registro exitoso',
+          html: '<h1>Ha sido registrado exitosamente en proyecto Samsung</h1>'
+        })
     })
-    .catch(err => {
-      console.log(err);
+      .catch(err => {
+        console.log(err);
     });
 };
 

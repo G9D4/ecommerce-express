@@ -22,11 +22,17 @@
                                     </div>
                                     <div>
                                         <label>Correo electrónico <span class="asterisco">*</span></label>
-                                        <input class="inputText" type="email" name="email">
+                                        <input
+                                            class="<%= erroresValidacion.find(e => e.path === 'email') ? 'inputText invalid' : 'inputText' %>"
+                                            type="email"
+                                            name="email">
                                     </div>
                                     <div>
                                         <label>Contraseña <span class="asterisco">*</span></label>
-                                        <input class="inputText" type="password" name="password">
+                                        <input
+                                            class="<%= erroresValidacion.find(e => e.path === 'password') ? 'inputText invalid' : 'inputText' %>"
+                                            type="password"
+                                            name="password">
                                         <a href="/usuario/reset-password">Olvidé mi contraseña</a>
                                     </div>
                                     <div>

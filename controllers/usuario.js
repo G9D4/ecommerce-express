@@ -53,7 +53,11 @@ exports.postLogin = async (req, res, next) => {
           req.flash('error', 'Las credenciales son invalidas')
           res.redirect('/usuario/login');
         })
-        .catch(err => console.log(err));
+        .catch(err => {
+          const error = new Error(err);
+          error.httpStatusCode = 500;
+          return next(error);
+        });
     })
 
 };
@@ -130,7 +134,9 @@ exports.postSignup = async (req, res, next) => {
       })
     })
     .catch(err => {
-      console.log(err);
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
     });
 };
 
@@ -175,7 +181,9 @@ exports.postResetPassword = async (req, res, next) => {
         });
       })
       .catch(err => {
-        console.log(err);
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
       });
   });
 };
@@ -196,7 +204,9 @@ exports.getNewPassword = (req, res, next) => {
       });
     })
     .catch(err => {
-      console.log(err);
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
     });
 };
 
@@ -225,6 +235,8 @@ exports.postNewPassword = (req, res, next) => {
       res.redirect('/usuario/login');
     })
     .catch(err => {
-      console.log(err);
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
     });
 };

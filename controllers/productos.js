@@ -151,7 +151,8 @@ exports.getCarritoDesplegable = (req, res, next) => {
                   id: item.idProducto._id,
                   nombreproducto: item.idProducto.nombreproducto,
                   cantidad: item.cantidad,
-                  precio: item.idProducto.precio
+                  precio: item.idProducto.precio,
+                  imagen: item.idProducto.urlImagen
               };
           });
 

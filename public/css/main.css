@@ -133,18 +133,19 @@ main {
 }
 
 .btn {
-  font: inherit;
-  border: 1px solid #00695c;
-  color: #00695c;
-  background: white;
-  border-radius: 3px;
+  background: #2089ff;
+  color: #ffffff !important;
+  text-transform: uppercase;
+  border: none;
+  padding: 10px 20px;
+  letter-spacing: 2.4px;
+  border-radius: 100px;
   cursor: pointer;
 }
 
 .btn:hover,
 .btn:active {
-  background-color: #00695c;
-  color: white;
+  background-color: #0056b3 !important;
 }
 
 .box-center_flex {
@@ -307,7 +308,9 @@ main {
 }
 
 .carrito-contenedor:hover .cart-dropdown {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .cart-items {
@@ -316,17 +319,50 @@ main {
   list-style: none;
   padding: 0;
   margin: 0;
+  display: flex;
+    flex-direction: column;
+    gap: 16px;
 }
 
-.cart-items li {
+.cart-items a {
   display: flex;
   justify-content: space-between;
-  padding: 5px 0;
+}
+
+.cart-items a:hover {
+  background-color: unset;
+  color: #000000;
+  cursor: pointer;
+}
+
+.cart-items a p {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  width: min-content;
+  text-align: start;
+}
+
+.cart-item_nombre {
+  font-weight: bold;
+}
+
+.cart-item_cantidad {
+  font-size: small;
 }
 
 .cart-total {
-  margin-top: 10px;
   font-weight: bold;
+}
+
+.dropdown-image {
+  height: 70px;
+  width: 70px;
+}
+
+.dropdown-image img {
+  width: 100%;
 }
 
 .view-cart {

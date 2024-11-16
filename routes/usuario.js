@@ -24,6 +24,7 @@ router.post('/login',
                 req.usuario = usuario;
             }),
         body('password', 'Por favor ingrese una contraseña que tenga letras o números y no menos de 8 caracteres')
+            .trim()
             .isLength({ min: 8 })
             .matches(/^[A-Za-z0-9_@.\/#$&+-@*]*$/)
             .custom(async (value, { req }) => {
@@ -35,8 +36,7 @@ router.post('/login',
                 }
 
                 return true;
-            })
-            .trim(),
+            }),
     ]
     , usuarioController.postLogin);
 router.post('/logout', usuarioController.postLogout);
@@ -68,16 +68,17 @@ router.post(
             'password',
             'Por favor ingrese una contraseña que tenga letras o números y no menos de 8 caracteres.'
         )
+            .trim()
             .isLength({ min: 8 })
-            .matches(/^[A-Za-z0-9_@.\/#$&+-@*]*$/)
-            .trim(),
-        body('password2').custom((value, { req }) => {
-            if (value !== req.body.password) {
-                throw new Error('Las contraseñas no coinciden');
-            }
-            return true;
-        })
-        .trim(),
+            .matches(/^[A-Za-z0-9_@.\/#$&+-@*]*$/),
+        body('password2')
+            .trim()
+            .custom((value, { req }) => {
+                if (value !== req.body.password) {
+                    throw new Error('Las contraseñas no coinciden');
+                }
+                return true;
+            }),
         ],
     usuarioController.postSignup
 );

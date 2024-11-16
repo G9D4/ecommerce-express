@@ -3,6 +3,7 @@ const { ObjectId } = require("mongodb");
 const Producto = require("../models/producto");
 const Categoria = require("../models/categoria");
 const Pedido = require("../models/pedido");
+const ITEMS_PER_PAGE = 5;
 
 exports.getHome = async (req, res) => {
   const categoria_ruta = req.params.categoria_ruta ? req.params.categoria_ruta : null;
@@ -29,7 +30,14 @@ exports.getProductos = async (req, res) => {
   const categorias = await Categoria.find().then(categorias => { return categorias });
   const categoria_id = categoria_ruta ? categorias.find(x => x.ruta == categoria_ruta) : null;
 
-  Producto.find(categoria_id ? { categoria_id: categoria_id } : {}).populate('categoria_id')
+  const page = parseInt(req.query.page) || 1;
+
+  const documentCount = await Producto.find(categoria_id ? { categoria_id: categoria_id } : {}).countDocuments();
+
+  Producto.find(categoria_id ? { categoria_id: categoria_id } : {})
+    .skip((page - 1) * ITEMS_PER_PAGE)
+    .limit(ITEMS_PER_PAGE)
+    .populate('categoria_id')
     .then(productos => {
       productos.forEach(producto => { producto.categoria = producto.categoria_id.categoria })
 
@@ -37,7 +45,9 @@ exports.getProductos = async (req, res) => {
         prods: productos,
         titulo: "Productos de la tienda",
         path: `/${categoria_ruta || ""}`,
-        autenticado: req.session.autenticado
+        autenticado: req.session.autenticado,
+        page: page,
+        lastPage : Math.ceil(documentCount / ITEMS_PER_PAGE)
       });
     })
     .catch(err => console.log(err));

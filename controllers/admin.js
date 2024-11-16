@@ -1,6 +1,7 @@
 const { ObjectId } = require("mongodb");
 const Producto = require("../models/producto");
 const Categoria = require("../models/categoria");
+//const file = require('../utils/file')
 
 
 exports.getCrearProducto = async (req, res, next) => {
@@ -20,13 +21,42 @@ exports.getCrearProducto = async (req, res, next) => {
 };
 
 exports.postCrearProducto = async (req, res, next) => {
+  console.log("bazinga");
   const nombreproducto = req.body.nombreproducto;
-  const urlImagen = req.body.urlImagen;
+  //const urlImagen = req.body.urlImagen;
+
+  const imagen = req.file;
+  console.log("COnsole log: " + imagen);
   const precio = Number(req.body.precio);
   const descripcion = req.body.descripcion;
   const caracteristicas = req.body.caracteristicas.split(", ");
   const categoria_id = req.body.categoria; // Capturando la categoría
-  const producto = new Producto({ nombreproducto: nombreproducto, precio: precio, descripcion: descripcion, urlImagen: urlImagen, caracteristicas: caracteristicas, categoria_id: categoria_id, idUsuario: req.usuario._id });
+
+
+  if(!imagen){
+    return res.status(422).render('admin/editar-productos', {
+      path: 'admin/editar-productos',
+      titulo: 'Crear Producto',
+      modoEdicion: false,
+      tieneError: true,
+      mensajeError: 'No hay imagen de Producto',
+      erroresValidacion: [],
+      producto: {
+        nombre: nombre,
+        precio: precio,
+        descripcion: descripcion
+      },
+    });
+
+  }
+
+  const urlImagen = imagen.path;
+
+  const producto = new Producto({ 
+    nombreproducto: nombreproducto, 
+    precio: precio, 
+    descripcion: descripcion, 
+    urlImagen: urlImagen, caracteristicas: caracteristicas, categoria_id: categoria_id, idUsuario: req.usuario._id });
 
   producto.save()
     .then(result => {
@@ -83,7 +113,8 @@ exports.postEditProductos = async (req, res, next) => {
   const nombreproducto = req.body.nombreproducto;
   const precio = Number(req.body.precio);
   const descripcion = req.body.descripcion;
-  const urlImagen = req.body.urlImagen;
+  //const urlImagen = req.body.urlImagen;
+  const imagen = req.file;
   const categoria_id = new ObjectId(req.body.categoria);
   const caracteristicas = req.body.caracteristicas != "" ? req.body.caracteristicas.split(",") : null;
 
@@ -96,7 +127,9 @@ exports.postEditProductos = async (req, res, next) => {
       producto.nombreproducto = nombreproducto;
       producto.precio = precio;
       producto.descripcion = descripcion;
-      producto.urlImagen = urlImagen;
+      if(imagen){ 
+        producto.urlImagen = imagen.path;
+      }
       producto.categoria_id = categoria_id;
       producto.caracteristicas = caracteristicas;
       return producto.save();

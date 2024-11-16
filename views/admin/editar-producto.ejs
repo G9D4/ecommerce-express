@@ -9,7 +9,9 @@
                     <h1>
                         <%= titulo %>
                     </h1>
-                    <form action="/admin/<% if (modoEdicion) { %>editar-producto<% } else { %>crear-producto<% } %>"
+                    <form
+                        enctype="multipart/form-data" 
+                        action="/admin/<% if (modoEdicion) { %>editar-producto<% } else { %>crear-producto<% } %>"
                         method="POST" class="form-control">
                         <!-- Nombre del producto -->
                         <div class="input-form">
@@ -17,14 +19,19 @@
                             <input type="text" id="nombreproducto" name="nombreproducto"
                                 value="<% if (modoEdicion) { %><%= producto.nombreproducto %><% } %>" required>
                         </div>
-
-                        <!-- URL de la imagen -->
+                        <!--URL de la imagen
                         <div class="input-form">
                             <label for="urlImagen">URL de la imagen</label>
                             <input type="text" id="urlImagen" name="urlImagen"
                                 value="<% if (modoEdicion) { %><%= producto.urlImagen %><% } %>">
+                        </div>-->
+                        <div class="form-control">
+                            <label for="imagen">Imagen</label>
+                            <input  
+                                type="file"
+                                name="imagen"
+                                id="imagen">
                         </div>
-
                         <!-- Precio del producto -->
                         <div class="input-form">
                             <label for="precio">Precio</label>

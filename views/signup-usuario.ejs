@@ -26,7 +26,7 @@
                                             type="text"
                                             name="nombres"
                                             value="<%= datosAnteriores.nombres %>"
-                                            class="inputText"
+                                            class="<%= erroresValidacion.find(e => e.path === 'nombres') ? 'inputText invalid' : 'inputText' %>"
                                             autocomplete="off" required>
                                     </div>
                                     <div>
@@ -35,7 +35,7 @@
                                             type="text"
                                             name="apellidos"
                                             value="<%= datosAnteriores.apellidos %>"
-                                            class="inputText"
+                                            class="<%= erroresValidacion.find(e => e.path === 'apellidos') ? 'inputText invalid' : 'inputText' %>"
                                             autocomplete="off"
                                             required>
                                     </div>

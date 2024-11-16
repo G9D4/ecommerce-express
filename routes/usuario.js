@@ -43,6 +43,16 @@ router.post('/logout', usuarioController.postLogout);
 router.post(
     '/signup',
     [
+        body('nombres')
+            .trim()
+            .customSanitizer((value) => value.replace(/\s+/g, ' '))
+            .notEmpty().withMessage('El nombre no puede estar vacío')
+            .matches(/^[a-zA-Z\s]+$/).withMessage('El nombre solo debe contener letras'),
+        body('apellidos')
+            .trim()
+            .customSanitizer((value) => value.replace(/\s+/g, ' '))
+            .notEmpty().withMessage('El apellido no puede estar vacío')
+            .matches(/^[a-zA-Z\s]+$/).withMessage('El apellido solo debe contener letras'),
         check('email')
             .isEmail()
             .withMessage('Por favor ingrese un correo válido')
@@ -68,7 +78,7 @@ router.post(
             return true;
         })
         .trim(),
-    ],
+        ],
     usuarioController.postSignup
 );
 router.post('/reset-password', usuarioController.postResetPassword);

@@ -13,6 +13,7 @@ router.post('/login',
         body('email')
             .isEmail()
             .withMessage('Por favor ingrese un email válido')
+            .normalizeEmail()
             .custom(async (value, { req }) => {
                 const usuario = await Usuario.findOne({ email: value });
 
@@ -35,6 +36,7 @@ router.post('/login',
 
                 return true;
             })
+            .trim(),
     ]
     , usuarioController.postLogin);
 router.post('/logout', usuarioController.postLogout);
@@ -44,26 +46,28 @@ router.post(
         check('email')
             .isEmail()
             .withMessage('Por favor ingrese un correo válido')
+            .normalizeEmail()
             .custom((value, { req }) => {
                 return Usuario.findOne({ email: value }).then(usuarioDoc => {
                     if (usuarioDoc) {
                         return Promise.reject('El email ingresado ya existe');
                     }
                 });
-            }
-            ),
+            }),
         body(
             'password',
             'Por favor ingrese una contraseña que tenga letras o números y no menos de 8 caracteres.'
         )
             .isLength({ min: 8 })
-            .matches(/^[A-Za-z0-9_@.\/#$&+-@*]*$/),
+            .matches(/^[A-Za-z0-9_@.\/#$&+-@*]*$/)
+            .trim(),
         body('password2').custom((value, { req }) => {
             if (value !== req.body.password) {
                 throw new Error('Las contraseñas no coinciden');
             }
             return true;
         })
+        .trim(),
     ],
     usuarioController.postSignup
 );

@@ -174,3 +174,12 @@
     display: flex;
     justify-content: end;
 }
+
+.invalid {
+    border-color: red;
+}
+
+.invalid:focus,
+.invalid:target {
+    border-color: red;
+}

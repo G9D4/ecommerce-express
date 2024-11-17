@@ -135,7 +135,7 @@ exports.postEditProductos = async (req, res, next) => {
         tienecaracteristicas: true,
         erroresValidacion: errors.array(),
         producto: {
-            idProducto: productoId,
+            _id: productoId,
             nombreproducto: nombreproducto,
             urlImagen: urlImagen,
             precio: precio,

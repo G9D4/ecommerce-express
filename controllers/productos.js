@@ -49,7 +49,6 @@ exports.getProductos = async (req, res) => {
 };
 
 exports.getCarrito = async (req, res, next) => {
-
   req.usuario
     .populate('carrito.productos.idProducto')
     .then(usuario => {
@@ -68,22 +67,32 @@ exports.getCarrito = async (req, res, next) => {
 
 };
 
-exports.postCarrito = async (req, res) => {
-
+exports.postCarrito = (req, res, next) => {
   const idProducto = req.body.idProducto;
-  const producto = await Producto.findById(idProducto);
-  const cantidad = req.body.quantity != '' ? Number(req.body.quantity) : null;
+  const cantidad = req.body.quantity && req.body.quantity.trim() !== '' ? Number(req.body.quantity) : null;
 
-  Producto.findById(producto._id)
+  if (cantidad != null && cantidad <= 0) {
+    req.flash('error', 'Cantidad inválida');
+    return res.redirect('/carrito');
+  }
+
+  Producto.findById(idProducto)
     .then(producto => {
+      if (!producto) {
+        req.flash('error', 'Producto no encontrado');
+        return res.redirect('/carrito');
+      }
       return req.usuario.agregarAlCarrito(producto, cantidad);
     })
-    .then(result => {
-      // console.log(result);
+    .then(() => {
       res.redirect('/carrito');
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      console.error(err);
+      next(err);
+    });
 };
+
 
 exports.postEliminarProductoCarrito = async (req, res) => {
 
@@ -175,6 +184,39 @@ exports.getCarritoDesplegable = (req, res, next) => {
           res.status(500).json({ error: 'Error al obtener el carrito' });
       });
 };
+
+exports.modificarCantidadCarrito = (req, res, next) => {
+  const idProducto = req.body.idProducto;
+  const nuevaCantidad = parseInt(req.body.nuevaCantidad, 10);
+
+  if (isNaN(nuevaCantidad) || nuevaCantidad < 0) {
+    req.flash('error', 'Cantidad inválida');
+    return res.redirect('/carrito');
+  }
+
+  Producto.findById(idProducto)
+    .then(producto => {
+      if (!producto) {
+        req.flash('error', 'Producto no encontrado en el carrito');
+        return res.redirect('/carrito');
+      }
+
+      if (nuevaCantidad === 0) {
+        return req.usuario.deleteProductoDelCarrito(idProducto);
+      }
+
+      return req.usuario.agregarAlCarrito(producto, nuevaCantidad);
+    })
+    .then(() => {
+      res.redirect('/carrito');
+    })
+    .catch(err => {
+      console.error(err);
+      next(err);
+    });
+};
+
+
 
 exports.getComprobante = (req, res, next) => {
   const idPedido = req.params.idPedido;

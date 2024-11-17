@@ -32,7 +32,6 @@ exports.postCrearProducto = async (req, res, next) => {
 
   producto.save()
     .then(result => {
-      throw error;
       console.log(result);
       res.redirect('/admin/productos');
     })

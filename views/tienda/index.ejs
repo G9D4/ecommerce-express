@@ -8,31 +8,33 @@
         <%- include('../includes/navigation.ejs') %>
 
             <main>
-                <% if (prods.length> 0) { %>
+                <% if (prods.length > 0) { %>
+                    <div>
+                        <h2><%= titulo %></h2>
+                        <div>
+                            <p>
+                                <% if (prods.length > 1) { %>
+                                    <%= prods.length %> artículos
+                                <% } else { %>
+                                    <%= prods.length %> artículo
+                                <% } %>
+                            </p>
+                            <div>
+                                <span>Ordenar por</span>
+                                <form action="/categoria/<%= path %>?product_list_order=:order" method="POST">
+                                    <select name="order" id="order">
+                                        <option value="position">Posición</option>
+                                        <option value="low-price">Menor precio</option>
+                                        <option value="high-price">Mayor precio</option>
+                                        <option value="name">Nombre</option>
+                                    </select>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                     <div class="grid">
                         <% for (let producto of prods) { %>
                             <article class="card product-item">
-                                <!-- <header class="card__header">
-                                    <h1 class="product__title">
-                                        <%= producto.nombreproducto %>
-                                    </h1>
-                                </header>
-                                <div class="card__image">
-                                    <img src="<%= producto.urlImagen %>" alt="<%= producto.nombreproducto %>">
-                                </div>
-                                <div class="card__content">
-                                    <h2 class="product__price"><strong>Precio: </strong>S/<%= producto.precio %>
-                                    </h2>
-                                    <p class="product__description"><strong>Descripción:</strong>
-                                        <%= producto.descripcion %>
-                                    </p>
-                                    <p class="product__characteristics"><strong>Características:</strong>
-                                        <%= producto.caracteristicas %>
-                                    </p>
-                                    <p class="product__category"><strong>Categoría:</strong>
-                                        <%= producto.categoria %>
-                                    </p>
-                                </div> -->
                                 <div class="card__image">
                                     <a href="/productos/<%= producto._id %>">
                                         <img src="<%= producto.urlImagen %>" alt="<%= producto.nombreproducto %>">
@@ -45,15 +47,6 @@
                                 </header>
                                 <div class="card__content">
                                     <h2 class="product__price">S/. <%= producto.precio %></h2>
-                                    <!-- <p class="product__description"><strong>Descripción:</strong>
-                                        <%= producto.descripcion %>
-                                    </p>
-                                    <p class="product__characteristics"><strong>Características:</strong>
-                                        <%= producto.caracteristicas %>
-                                    </p>
-                                    <p class="product__category"><strong>Categoría:</strong>
-                                        <%= producto.categoria %>
-                                    </p> -->
                                     <div class="card__actions">
                                         <% if (typeof user=='object' && user){ %>
                                             <%- include('../includes/agregar-al-carrito.ejs', {producto: producto}) %>

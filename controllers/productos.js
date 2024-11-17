@@ -35,7 +35,7 @@ exports.getProductos = async (req, res) => {
 
       res.render('tienda/index', {
         prods: productos,
-        titulo: "Productos de la tienda",
+        titulo: `${categoria_id.categoria}`,
         path: `/${categoria_ruta || ""}`,
         autenticado: req.session.autenticado
       });

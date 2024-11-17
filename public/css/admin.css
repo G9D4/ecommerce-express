@@ -175,6 +175,26 @@
     justify-content: end;
 }
 
+.inputText {
+    background: #fff;
+    background-clip: padding-box;
+    border: 1px solid #c2c2c2;
+    border-radius: 1px;
+    font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    height: 32px;
+    line-height: 1.42857143;
+    padding: 0 9px;
+    vertical-align: baseline;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.inputText:focus {
+    border: 1px solid #c2c2c2;
+    outline: none;
+}
+
 .invalid {
     border-color: red;
 }

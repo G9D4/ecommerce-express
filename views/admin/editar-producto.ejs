@@ -20,7 +20,7 @@
                         <div class="input-form">
                             <label for="nombreproducto">Nombre del producto</label>
                             <input
-                                class="<%= erroresValidacion.find(e => e.path === 'nombreproducto') ? 'invalid' : '' %>"
+                                class="<%= erroresValidacion.find(e => e.path === 'nombreproducto') ? 'invalid inputText' : 'inputText' %>"
                                 type="text"
                                 id="nombreproducto"
                                 name="nombreproducto"
@@ -31,7 +31,7 @@
                         <div class="input-form">
                             <label for="urlImagen">URL de la imagen</label>
                             <input
-                                class="<%= erroresValidacion.find(e => e.path === 'urlImagen') ? 'invalid' : '' %>"
+                                class="<%= erroresValidacion.find(e => e.path === 'urlImagen') ? 'invalid inputText' : 'inputText' %>"
                                 type="text"
                                 id="urlImagen"
                                 name="urlImagen"
@@ -42,7 +42,7 @@
                         <div class="input-form">
                             <label for="precio">Precio</label>
                             <input
-                                class="<%= erroresValidacion.find(e => e.path === 'precio') ? 'invalid' : '' %>"
+                                class="<%= erroresValidacion.find(e => e.path === 'precio') ? 'invalid inputText' : 'inputText' %>"
                                 type="number"
                                 min="0" max="100000.00" step='0.01'
                                 id="precio"
@@ -54,7 +54,7 @@
                         <div class="input-form">
                             <label for="descripcion">Descripción</label>
                             <textarea
-                                class="<%= erroresValidacion.find(e => e.path === 'descripcion') ? 'invalid' : '' %>"
+                                class="<%= erroresValidacion.find(e => e.path === 'descripcion') ? 'invalid inputText' : 'inputText' %>"
                                 id="descripcion"
                                 name="descripcion"
                                 required><% if (modoEdicion || tieneError) { %><%= producto.descripcion %><% } %></textarea>
@@ -65,7 +65,7 @@
                         <div class="input-form">
                             <label for="caracteristicas">Características principales</label>
                             <textarea
-                                class="<%= erroresValidacion.find(e => e.path === 'caracteristicas') ? 'invalid' : '' %>"
+                                class="<%= erroresValidacion.find(e => e.path === 'caracteristicas') ? 'invalid inputText' : 'inputText' %>"
                                 id="caracteristicas"
                                 name="caracteristicas"><% if (modoEdicion || tieneError){%><% if (tienecaracteristicas){%><%= producto.caracteristicas.join(",") %><%}%><%}%></textarea>
                         </div>
@@ -75,7 +75,8 @@
                             <label for="categoria">Categoría</label>
                             <select
                                 id="categoria"
-                                name="categoria">
+                                name="categoria"
+                                class = "inputText">
                                 <% for (let c of categorias) { %>
                                     <option value="<%=c._id%>" <% if (modoEdicion &&
                                         producto.categoria_id.toString()==c._id.toString()) { %>selected<% } %>><%= c.categoria %>

@@ -20,7 +20,11 @@ exports.getHome = async (req, res) => {
         autenticado: req.session.autenticado
       });
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 
 };
 
@@ -40,7 +44,11 @@ exports.getProductos = async (req, res) => {
         autenticado: req.session.autenticado
       });
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 
 };
 
@@ -60,7 +68,11 @@ exports.getCarrito = async (req, res, next) => {
         autenticado: req.session.autenticado
       });
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 
 };
 
@@ -78,7 +90,11 @@ exports.postCarrito = async (req, res) => {
       console.log(result);
       res.redirect('/carrito');
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
 exports.postEliminarProductoCarrito = async (req, res) => {
@@ -88,7 +104,11 @@ exports.postEliminarProductoCarrito = async (req, res) => {
     .then(result => {
       res.redirect('/carrito');
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
 exports.getProducto = (req, res) => {
@@ -115,7 +135,11 @@ exports.getPedidos = async (req, res, next) => {
         autenticado: req.session.autenticado
       });
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 
 };
 
@@ -139,7 +163,11 @@ exports.postPedido = async (req, res, next) => {
     .then(() => {
       res.redirect('/pedidos');
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 }; 
 
 exports.getCarritoDesplegable = (req, res, next) => {
@@ -165,7 +193,8 @@ exports.getCarritoDesplegable = (req, res, next) => {
           });
       })
       .catch(err => {
-          console.error(err);
-          res.status(500).json({ error: 'Error al obtener el carrito' });
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);  
       });
 };

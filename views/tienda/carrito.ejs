@@ -1,35 +1,39 @@
 <%- include('../includes/head.ejs') %>
-    </head>
+</head>
 
-    <body>
-        <%- include('../includes/header-publicidad.ejs') %>
-        <%- include('../includes/navigation.ejs') %>
-            <main>
-                <% if (productos.length> 0) { %>
-                    <ul>
-                        <% productos.forEach(p=> { %>
-                            <li>
-                                <p>
-                                    (<%= p.cantidad %>) <%= p.dataProducto.nombreproducto %> [<%= p.dataProducto.precio %>]
-                                </p>
-                                <form action="/eliminar-producto-carrito" method="POST">
-                                    <input type="hidden" value="<%= p.dataProducto._id %>" name="idProducto">
-                                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                                    <button class="btn" type="submit">Eliminar</button>
-                                </form>
-                            </li>
-                            <% }) %>
-                    </ul>
-                    <div class="centered">
-                        <form action="/crear-pedido" method="POST">
+<body>
+    <%- include('../includes/header-publicidad.ejs') %>
+    <%- include('../includes/navigation.ejs') %>
+    <main>
+        <% if (productos.length > 0) { %>
+            <ul>
+                <% let total = 0; %>
+                <% productos.forEach(p => { 
+                    total += p.cantidad * p.dataProducto.precio; 
+                %>
+                    <li>
+                        <p>
+                            (<%= p.cantidad %>) <%= p.dataProducto.nombreproducto %> [<%= p.dataProducto.precio.toFixed(2) %>]
+                        </p>
+                        <form action="/eliminar-producto-carrito" method="POST">
+                            <input type="hidden" value="<%= p.dataProducto._id %>" name="idProducto">
                             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                            <button type="submit" class="btn">Confirmar Pedido!</button>
+                            <button class="btn" type="submit">Eliminar</button>
                         </form>
-                    </div>
-                    <% } else { %>
-                        <h1>No hay productos en el carrito!</h1>
-                        <% } %>
-            </main>
-
-
-            <%- include('../includes/end.ejs') %>
+                    </li>
+                <% }); %>
+            </ul>
+            <div class="total-container">
+                <h2>Total: <%= total.toFixed(2) %></h2>
+            </div>
+            <div class="centered">
+                <form action="/crear-pedido" method="POST">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <button type="submit" class="btn">Confirmar Pedido!</button>
+                </form>
+            </div>
+        <% } else { %>
+            <h1>No hay productos en el carrito!</h1>
+        <% } %>
+    </main>
+    <%- include('../includes/end.ejs') %>

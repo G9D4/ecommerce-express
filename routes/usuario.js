@@ -11,9 +11,12 @@ const usuarioController = require('../controllers/usuario')
 router.post('/login',
     [
         body('email')
+            .notEmpty()
+            .withMessage('Por favor ingrese un email')
             .isEmail()
             .withMessage('Por favor ingrese un email válido')
-            .normalizeEmail()
+            .bail()
+            .normalizeEmail({ gmail_remove_dots: false })
             .custom(async (value, { req }) => {
                 const usuario = await Usuario.findOne({ email: value });
 

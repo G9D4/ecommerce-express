@@ -32,7 +32,7 @@ router.post('/crear-producto',
     isAuth,
     adminController.postCrearProducto);
 
-router.post('/editar-producto/:id',
+router.post('/editar-producto',
     [
         body('nombreproducto', 'El nombre del producto debe ser un texto de no menos de 3 caracteres')
             .trim()

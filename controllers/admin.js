@@ -51,7 +51,7 @@ exports.postCrearProducto = async (req, res, next) => {
             precio: precio,
             descripcion: descripcion,
             caracteristicas: caracteristicas,
-            categoria: categoria_id,
+            categoria_id: categoria_id,
         },
     });
   }

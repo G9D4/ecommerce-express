@@ -20,6 +20,7 @@ const usuarioRouter = require('./routes/usuario')
 const ecommerceRouter = require('./routes/ecommerce')
 const adminRouter = require('./routes/admin');
 const Usuario = require('./models/usuario');
+const errorController = require('./controllers/error')
 
 
 const app = express();
@@ -52,11 +53,16 @@ app.use((req, res, next) => {
   }
   Usuario.findById(req.session.usuario._id)
     .then(usuario => {
+      if (!usuario) {
+        return next();
+      }  
       req.usuario = usuario;
       res.locals.user = usuario;
       next();
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      next(new Error(err));
+    });
 
 });
 
@@ -70,6 +76,16 @@ app.use('/admin', adminRouter);
 app.use('/usuario', usuarioRouter)
 app.use(ecommerceRouter);
 
+app.get('/500', errorController.get500);
+app.use(errorController.get404);
+
+app.use((err, req, res, next) => {
+  console.log(err);
+  res.render("500", {
+    titulo: "Error 500",
+    path: "/500",
+  });  
+})
 
 app.use((req, res, next) => {
   res.status(404).sendFile(path.join(raizDir, 'views', '404.ejs'));

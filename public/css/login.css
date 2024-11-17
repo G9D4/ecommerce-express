@@ -80,3 +80,11 @@ label {
     color: red;
     font-size: small;
 }
+
+.invalid {
+    border-color: red;
+}
+
+.invalid:focus {
+    border-color: red;
+}

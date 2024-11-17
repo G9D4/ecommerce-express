@@ -10,7 +10,7 @@
                         <% productos.forEach(p=> { %>
                             <li>
                                 <p>
-                                    <%= p.dataProducto.nombreproducto %> (<%= p.cantidad %>)
+                                    (<%= p.cantidad %>) <%= p.dataProducto.nombreproducto %> [<%= p.dataProducto.precio %>]
                                 </p>
                                 <form action="/eliminar-producto-carrito" method="POST">
                                     <input type="hidden" value="<%= p.dataProducto._id %>" name="idProducto">

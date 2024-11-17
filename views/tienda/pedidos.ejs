@@ -17,8 +17,8 @@
                                 </h1>
                                 <a href="/pedidos/<%= pedido._id %>">Comprobante</a>
                                 <ul class="orders__products">
-                                    <% pedido.productos.forEach(producto => { %>
-                                        <li class="orders__products-item"><%= producto.producto.nombreproducto %> (<%= producto.cantidad %>) [<%= producto.producto.precio %>]</li>
+                                    <% pedido.productos.forEach(item => { %>
+                                        <li class="orders__products-item">(<%= item.cantidad %>) <%= item.producto.nombreproducto %> [<%= item.producto.precio %>]</li>
                                     <% }); %>
                                 </ul>
                             </li>

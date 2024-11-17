@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+
 const pedidoSchema = new Schema({
   productos: [
     {
@@ -8,7 +9,15 @@ const pedidoSchema = new Schema({
     }
   ],
   usuario: {
-    nombre: {
+    nombres: {
+      type: String,
+      required: true
+    },
+    apellidos: {
+      type: String,
+      required: true
+    },
+    email: {
       type: String,
       required: true
     },
@@ -17,6 +26,11 @@ const pedidoSchema = new Schema({
       required: true,
       ref: 'Usuario'
     }
+  },
+  fecha: {
+    type: Date,
+    default: Date.now
   }
 });
+
 module.exports = mongoose.model('Pedido', pedidoSchema);

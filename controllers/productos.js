@@ -141,7 +141,10 @@ exports.postPedido = (req, res, next) => {
       });
       const pedido = new Pedido({
           usuario: {
-            nombre: req.usuario.email, // aca no hay valor para nombre asi que se pone email por el mmomento
+            nombres: req.usuario.nombres,
+            apellidos: req.usuario.apellidos,
+            email: req.usuario.email,
+            // telefono: req.usuario.telefono
             idUsuario: req.usuario
           },
           productos: productos
@@ -216,50 +219,86 @@ exports.modificarCantidadCarrito = (req, res, next) => {
     });
 };
 
-
-
 exports.getComprobante = (req, res, next) => {
   const idPedido = req.params.idPedido;
+
   Pedido.findById(idPedido)
-  .then(pedido => {
+    .populate('productos.producto') // Asegura que los datos de los productos estén disponibles
+    .then(pedido => {
       if (!pedido) {
-          return next(new Error('No se encontro el pedido'));
+        return next(new Error('No se encontró el pedido'));
       }
+
       if (pedido.usuario.idUsuario.toString() !== req.usuario._id.toString()) {
-          return next(new Error('No Autorizado'));
+        return next(new Error('No autorizado'));
       }
-      const nombreComprobante = 'comprobante-' + idPedido + '.pdf';
-      // const nombreComprobante = 'comprobante' + '.pdf';
+
+      const nombreComprobante = `comprobante-${idPedido}.pdf`;
       const rutaComprobante = path.join('data', 'comprobantes', nombreComprobante);
-      const pdfDoc = new PDFDocument();
+      const pdfDoc = new PDFDocument({ margin: 50 });
+
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader(
-          'Content-Disposition',
-          'attachment; filename="' + nombreComprobante + '"'
+        'Content-Disposition',
+        `attachment; filename="${nombreComprobante}"`
       );
+
       pdfDoc.pipe(fs.createWriteStream(rutaComprobante));
       pdfDoc.pipe(res);
-      pdfDoc.fontSize(26).text('Comprobante', {
-          underline: true
-      });
-      pdfDoc.fontSize(14).text('---------------------------------------');
+
+      // Encabezado con logotipo
+      const logoPath = path.join('public', 'imagencomprobante', 'logo.jpeg');
+      if (fs.existsSync(logoPath)) {
+        pdfDoc.image(logoPath, 50, 40, { width: 100 });
+      }
+      pdfDoc
+        .fontSize(20)
+        .text('Comprobante de Pedido', 150, 50, { align: 'center' })
+        .moveDown();
+
+      // Información del comprador
+      pdfDoc
+        .fontSize(12)
+        .text(`Nombre: ${pedido.usuario.nombres} ${req.usuario.apellidos}`)
+        .text(`Correo: ${pedido.usuario.email}`)
+        .text(`Fecha: ${new Date(pedido.fecha).toLocaleDateString()}`)
+        .moveDown();
+
+      // Detalles del pedido
+      pdfDoc.fontSize(14).text('Detalles del Pedido:').moveDown();
+
       let precioTotal = 0;
+
       pedido.productos.forEach(prod => {
-          precioTotal += prod.cantidad * prod.producto.precio;
-          pdfDoc
-              .fontSize(14)
-              .text(
-                  prod.producto.nombre +
-                  ' - ' +
-                  prod.cantidad +
-                  ' x ' +
-                  'S/ ' +
-                  prod.producto.precio
-              );
+        const subTotal = prod.cantidad * prod.producto.precio;
+        precioTotal += subTotal;
+
+        pdfDoc
+          .fontSize(12)
+          .text(
+            `${prod.producto.nombreproducto} - ${prod.cantidad} x S/ ${prod.producto.precio.toFixed(
+              2
+            )} = S/ ${subTotal.toFixed(2)}`
+          );
       });
-      pdfDoc.text('---------------------------------------');
-      pdfDoc.fontSize(20).text('Precio Total: S/' + precioTotal);
+
+      pdfDoc
+        .fontSize(14)
+        .text('---------------------------------------')
+        .fontSize(16)
+        .text(`Precio Total: S/ ${precioTotal.toFixed(2)}`, { align: 'right' })
+        .moveDown();
+
+      // Pie de página
+      pdfDoc
+        .fontSize(10)
+        .text(
+          'Gracias por su compra. Por favor, conserve este comprobante para futuras referencias.',
+          { align: 'center' }
+        )
+        .moveDown();
+
       pdfDoc.end();
-  })
-  .catch(err => console.log(err));
+    })
+    .catch(err => console.error(err));
 };

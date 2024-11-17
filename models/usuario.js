@@ -15,6 +15,10 @@ const usuarioSchema = new Schema({
     type: String,
     required: true
   },
+  // telefono: {
+  //   type: String,
+  //   required: true
+  // },
   password: {
     type: String,
     required: true

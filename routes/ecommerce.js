@@ -16,5 +16,6 @@ router.get('/productos/:idProducto', isAuth, productosController.getProducto);
 
 router.get('/pedidos', isAuth, productosController.getPedidos);
 router.post('/crear-pedido', isAuth, productosController.postPedido);
+router.get('/pedidos/:idPedido', isAuth, productosController.getComprobante);
 
 module.exports = router;

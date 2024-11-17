@@ -4,6 +4,10 @@ const Producto = require("../models/producto");
 const Categoria = require("../models/categoria");
 const Pedido = require("../models/pedido");
 
+const fs = require('fs');
+const path = require('path');
+const PDFDocument = require('pdfkit');
+
 exports.getHome = async (req, res) => {
   const categoria_ruta = req.params.categoria_ruta ? req.params.categoria_ruta : null;
   const categorias = await Categoria.find().then(categorias => { return categorias });
@@ -52,7 +56,7 @@ exports.getCarrito = async (req, res, next) => {
       const productos = usuario.carrito.productos;
       productos.forEach(x => x.dataProducto = x.idProducto);
 
-      console.log('productos', productos)
+      // console.log('productos', productos)
       res.render('tienda/carrito', {
         path: '/carrito',
         titulo: 'Mi Carrito',
@@ -75,7 +79,7 @@ exports.postCarrito = async (req, res) => {
       return req.usuario.agregarAlCarrito(producto, cantidad);
     })
     .then(result => {
-      console.log(result);
+      // console.log(result);
       res.redirect('/carrito');
     })
     .catch(err => console.log(err));
@@ -102,45 +106,47 @@ exports.getProducto = (req, res) => {
   });
 };
 
-exports.getPedidos = async (req, res, next) => {
-
-  Pedido.find({ 'idUsuario': req.usuario._id }).populate('productos.idProducto')
-    .then(pedidos => {
-      pedidos.forEach(x => x.productos.forEach(y => { y.nombreproducto = y.idProducto.nombreproducto }))
-
-      res.render('tienda/pedidos', {
-        path: '/pedidos',
-        titulo: 'Mis Pedidos',
-        pedidos: pedidos,
-        autenticado: req.session.autenticado
-      });
-    })
-    .catch(err => console.log(err));
-
+exports.getPedidos = (req, res, next) => {
+  req.usuario
+      Pedido.find({ 'usuario.idUsuario': req.usuario._id })
+      .then(pedidos => {
+          res.render('tienda/pedidos', {
+              path: '/pedidos',
+              titulo: 'Mis Pedidos',
+              pedidos: pedidos,
+              autenticado: req.session.autenticado
+          });
+      })
+      .catch(err => console.log(err));
 };
 
-exports.postPedido = async (req, res, next) => {
+exports.postPedido = (req, res, next) => {
   req.usuario
-    .populate('carrito.productos.idProducto')
-    .then(usuario => {
+      .populate('carrito.productos.idProducto')
+      .then(usuario => {
       const productos = usuario.carrito.productos.map(i => {
-
-        return { cantidad: i.cantidad, idProducto: new ObjectId(i.idProducto._doc._id) };
+          return { 
+            cantidad: i.cantidad, 
+            producto: { ...i.idProducto._doc } 
+          };
       });
       const pedido = new Pedido({
-        idUsuario: new ObjectId(req.usuario._id),
-        productos: productos
+          usuario: {
+            nombre: req.usuario.email, // aca no hay valor para nombre asi que se pone email por el mmomento
+            idUsuario: req.usuario
+          },
+          productos: productos
       });
       return pedido.save();
-    })
-    .then(result => {
-      return req.usuario.limpiarCarrito();
-    })
-    .then(() => {
-      res.redirect('/pedidos');
-    })
-    .catch(err => console.log(err));
-}; 
+      })
+      .then(result => {
+          return req.usuario.limpiarCarrito();
+      })
+      .then(() => {
+          res.redirect('/pedidos');
+      })
+      .catch(err => console.log(err));
+};
 
 exports.getCarritoDesplegable = (req, res, next) => {
   req.usuario
@@ -168,4 +174,50 @@ exports.getCarritoDesplegable = (req, res, next) => {
           console.error(err);
           res.status(500).json({ error: 'Error al obtener el carrito' });
       });
+};
+
+exports.getComprobante = (req, res, next) => {
+  const idPedido = req.params.idPedido;
+  Pedido.findById(idPedido)
+  .then(pedido => {
+      if (!pedido) {
+          return next(new Error('No se encontro el pedido'));
+      }
+      if (pedido.usuario.idUsuario.toString() !== req.usuario._id.toString()) {
+          return next(new Error('No Autorizado'));
+      }
+      const nombreComprobante = 'comprobante-' + idPedido + '.pdf';
+      // const nombreComprobante = 'comprobante' + '.pdf';
+      const rutaComprobante = path.join('data', 'comprobantes', nombreComprobante);
+      const pdfDoc = new PDFDocument();
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader(
+          'Content-Disposition',
+          'attachment; filename="' + nombreComprobante + '"'
+      );
+      pdfDoc.pipe(fs.createWriteStream(rutaComprobante));
+      pdfDoc.pipe(res);
+      pdfDoc.fontSize(26).text('Comprobante', {
+          underline: true
+      });
+      pdfDoc.fontSize(14).text('---------------------------------------');
+      let precioTotal = 0;
+      pedido.productos.forEach(prod => {
+          precioTotal += prod.cantidad * prod.producto.precio;
+          pdfDoc
+              .fontSize(14)
+              .text(
+                  prod.producto.nombre +
+                  ' - ' +
+                  prod.cantidad +
+                  ' x ' +
+                  'S/ ' +
+                  prod.producto.precio
+              );
+      });
+      pdfDoc.text('---------------------------------------');
+      pdfDoc.fontSize(20).text('Precio Total: S/' + precioTotal);
+      pdfDoc.end();
+  })
+  .catch(err => console.log(err));
 };

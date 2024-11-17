@@ -9,22 +9,21 @@
             <main>
                 <% if (typeof pedidos=='object' && pedidos.length==0) { %>
                     <h1>No ha realizado pedidos</h1>
-                    <% } else { %>
-                        <ul class="orders">
-                            <% pedidos.forEach(pedido=> { %>
-                                <li class="orders__item">
-                                    <h1>Pedido - # <%= pedido._id %>
-                                    </h1>
-                                    <ul class="orders__products">
-                                        <% pedido.productos.forEach(producto=> { %>
-                                            <li class="orders__products-item">
-                                                <%= producto.nombreproducto %> (<%= producto.cantidad %>)
-                                            </li>
-                                            <% }); %>
-                                    </ul>
-                                </li>
-                                <% }); %>
-                        </ul>
-                        <% } %>
+                <% } else { %>
+                    <ul class="orders">
+                        <% pedidos.forEach(pedido=> { %>
+                            <li class="orders__item">
+                                <h1>Pedido - # <%= pedido._id %> 
+                                </h1>
+                                <a href="/pedidos/<%= pedido._id %>">Comprobante</a>
+                                <ul class="orders__products">
+                                    <% pedido.productos.forEach(producto => { %>
+                                        <li class="orders__products-item"><%= producto.producto.nombreproducto %> (<%= producto.cantidad %>) [<%= producto.producto.precio %>]</li>
+                                    <% }); %>
+                                </ul>
+                            </li>
+                            <% }); %>
+                    </ul>
+                <% } %>
             </main>
             <%- include('../includes/end.ejs') %>

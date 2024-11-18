@@ -248,7 +248,7 @@ exports.modificarCantidadCarrito = (req, res, next) => {
         return req.usuario.deleteProductoDelCarrito(idProducto);
       }
 
-      return req.usuario.agregarAlCarrito(producto, nuevaCantidad);
+      return req.usuario.actualizarAlCarrito(producto, nuevaCantidad);
     })
     .then(() => {
       res.redirect('/carrito');

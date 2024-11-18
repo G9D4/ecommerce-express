@@ -51,6 +51,42 @@ usuarioSchema.methods.agregarAlCarrito = function (producto, cantidad = null) {
   const productosActualizados = [...this.carrito.productos];
 
   if (indiceEnCarrito >= 0) {
+    if (cantidad != null && cantidad > 0) {
+      productosActualizados[indiceEnCarrito].cantidad += cantidad;
+    } else if (cantidad === null || cantidad > 0) {
+      productosActualizados[indiceEnCarrito].cantidad += 1;
+    }
+  } else {
+    if (cantidad != null && cantidad > 0) {
+      productosActualizados.push({
+        idProducto: producto._id,
+        cantidad: cantidad
+      });
+    } else {
+      productosActualizados.push({
+        idProducto: producto._id,
+        cantidad: 1
+      });
+    }
+  }
+
+  // Asignar los productos actualizados al carrito y guardarlo
+  this.carrito = { productos: productosActualizados };
+  return this.save();
+};
+
+usuarioSchema.methods.actualizarAlCarrito = function (producto, cantidad = null) {
+  if (!this.carrito) {
+    this.carrito = { productos: [] };
+  }
+
+  const indiceEnCarrito = this.carrito.productos.findIndex(cp => {
+    return cp.idProducto.toString() === producto._id.toString();
+  });
+
+  const productosActualizados = [...this.carrito.productos];
+
+  if (indiceEnCarrito >= 0) {
     // Producto ya está en el carrito
     if (cantidad != null) {
       if (cantidad > 0) {

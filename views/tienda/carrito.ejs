@@ -13,7 +13,7 @@
                 %>
                     <li>
                         <p>
-                            <%= p.dataProducto.nombreproducto %> [S/ <%= p.dataProducto.precio.toFixed(2) %>] 
+                            <%= p.dataProducto.nombreproducto %> [S/ <%= p.cantidad * p.dataProducto.precio %>] 
                         </p>
                         <form action="/modificar-cantidad-carrito" method="POST" class="product-actions">
                             <input type="hidden" value="<%= p.dataProducto._id %>" name="idProducto">
@@ -24,7 +24,7 @@
                                 id="cantidad_<%= p.dataProducto._id %>" 
                                 name="nuevaCantidad" 
                                 value="<%= p.cantidad %>" 
-                                min="1" 
+                                min="0" 
                                 class="quantity-input">
                             <button class="btn btn-danger" type="submit">Actualizar</button>
                         </form>

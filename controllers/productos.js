@@ -8,45 +8,85 @@ const fs = require('fs');
 const path = require('path');
 const PDFDocument = require('pdfkit');
 
-exports.getHome = async (req, res) => {
-  const categoria_ruta = req.params.categoria_ruta ? req.params.categoria_ruta : null;
-  const categorias = await Categoria.find().then(categorias => { return categorias });
-  const categoria_id = categoria_ruta ? categorias.find(x => x.ruta == categoria_ruta) : null;
+exports.getHome = (req, res, next) => {
+  const categoria_ruta = req.params.categoria_ruta; // Obtener la ruta de la categoría desde los parámetros de la URL
 
-  Producto.find(categoria_id ? { categoria_id: categoria_id } : {}).populate('categoria_id')
-    .then(productos => {
-      productos.forEach(producto => { producto.categoria = producto.categoria_id.categoria })
+  Promise.all([
+    Categoria.find(), // Obtener todas las categorías
+    Producto.find().populate('categoria_id') // Popular los productos con la información de categoría
+  ])
+    .then(([categorias, productos]) => {
+      let productosFiltrados = productos; // Inicializar con todos los productos
 
-      res.render('tienda/home', {
-        prods: productos,
-        titulo: "Home",
-        path: '/',
-        autenticado: req.session.autenticado
-      });
+      if (categoria_ruta) {
+        const categoriaSeleccionada = categorias.find(cat => cat.ruta === categoria_ruta); // Buscar categoría por 'ruta'
+        if (categoriaSeleccionada) {
+          productosFiltrados = productos.filter(
+            producto => producto.categoria_id && producto.categoria_id._id.toString() === categoriaSeleccionada._id.toString()
+          );
+        }
+      }
+
+      const titulo = categoria_ruta
+        ? `Categoría: ${categorias.find(cat => cat.ruta === categoria_ruta)?.categoria || 'No encontrada'}`
+        : "Página principal de la Tienda";
+
+      // pagina de inicio
+      if (!categoria_ruta) {
+        res.render('tienda/home', {
+          prods: productosFiltrados,
+          categorias: categorias,
+          titulo: titulo,
+          path: `/${categoria_ruta || ''}`,
+          autenticado: req.session.autenticado
+        });
+      } else {
+        res.render('tienda/index', {
+          prods: productosFiltrados,
+          categorias: categorias,
+          titulo: titulo,
+          path: `/${categoria_ruta || ''}`,
+          autenticado: req.session.autenticado
+        });
+      }
     })
-    .catch(err => console.log(err));
-
+    .catch(err => {
+      console.error("Error al cargar la tienda: ", err);
+      res.status(500).send("Error al cargar la tienda");
+    });
 };
 
-exports.getProductos = async (req, res) => {
+exports.getProductos = (req, res, next) => {
   const categoria_ruta = req.params.categoria_ruta ? req.params.categoria_ruta : null;
-  const categorias = await Categoria.find().then(categorias => { return categorias });
-  const categoria_id = categoria_ruta ? categorias.find(x => x.ruta == categoria_ruta) : null;
+  Categoria.find().then(categorias => {
+    const categoria_id = categoria_ruta ? categorias.find(x => x.ruta == categoria_ruta) : null;
 
-  Producto.find(categoria_id ? { categoria_id: categoria_id } : {}).populate('categoria_id')
-    .then(productos => {
-      productos.forEach(producto => { producto.categoria = producto.categoria_id.categoria })
-
-      res.render('tienda/index', {
-        prods: productos,
-        titulo: "Productos de la tienda",
-        path: `/${categoria_ruta || ""}`,
-        autenticado: req.session.autenticado
+    // Filtra si hay una categoría seleccionada
+    Producto.find(categoria_id ? { categoria_id: categoria_id } : {})
+      .populate('categoria_id')
+      .then(productos => {
+        productos.forEach(producto => { 
+          producto.categoria = producto.categoria_id.categoria 
+        });
+        res.render('tienda/index', {
+          prods: productos,
+          categorias: categorias, 
+          titulo: "Productos de la tienda",
+          path: `/${categoria_ruta || ""}`,
+          autenticado: req.session.autenticado
+        });
+      })
+      .catch(err => {
+        console.log(err);
+        res.status(500).send('Error al obtener productos');
       });
-    })
-    .catch(err => console.log(err));
-
+  })
+  .catch(err => {
+    console.log(err);
+    res.status(500).send('Error al obtener categorías');
+  });
 };
+
 
 exports.getCarrito = async (req, res, next) => {
   req.usuario

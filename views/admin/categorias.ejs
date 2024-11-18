@@ -1,0 +1,45 @@
+<%- include('../includes/head.ejs') %>
+<link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+    <%- include('../includes/navigation.ejs') %>
+    <main>
+        <!-- Formulario para crear o editar categoría -->
+        <div class="">
+            <h2><%= categoria ? "Editar Categoría" : "Crear Nueva Categoría" %></h2>
+            <form action="/admin/categorias" method="POST">
+                <div>
+                    <label for="categoria">Nombre de la Categoría:</label>
+                    <input type="text" name="categoria" value="<%= categoria ? categoria.categoria : "" %>" required>
+                </div>
+                <div>
+                    <label for="ruta">Ruta:</label>
+                    <input type="text" name="ruta" value="<%= categoria ? categoria.ruta : "" %>" required>
+                </div>
+                <% if (categoria) { %>
+                    <input type="hidden" name="idCategoria" value="<%= categoria._id %>">
+                <% } %>
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <button type="submit"><%= categoria ? "Actualizar Categoría" : "Crear Categoría" %></button>
+            </form>
+        </div>
+
+        <!-- Lista de categorías existentes -->
+        <div class="">
+            <h2>Lista de Categorías</h2>
+            <ul>
+                <% categorias.forEach(categoria => { %>
+                    <li>
+                        <strong><%= categoria.categoria %></strong> - <%= categoria.ruta %>
+                        <a href="/admin/categorias?edit=<%= categoria._id %>">Editar</a> 
+                        <form action="/admin/categorias/eliminar/<%= categoria._id %>" method="POST" style="display:inline;">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                            <button type="submit" onclick="return confirm('¿Estás seguro de que deseas eliminar esta categoría?');">Eliminar</button>
+                        </form>
+                    </li>
+                <% }) %>
+            </ul>
+        </div>
+    </main>
+    <%- include('../includes/end.ejs') %>
+</body>

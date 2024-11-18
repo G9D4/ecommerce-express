@@ -40,7 +40,6 @@
                         </div>
 
                         <!-- Características del producto -->
-
                         <div class="input-form">
                             <label for="caracteristicas">Características principales</label>
                             <textarea id="caracteristicas"
@@ -52,14 +51,17 @@
                             <label for="categoria">Categoría</label>
                             <select id="categoria" name="categoria">
                                 <% for (let c of categorias) { %>
-                                    <option value="<%=c._id%>" <% if (modoEdicion &&
-                                        producto.categoria_id.toString()==c._id.toString()) { %>selected<% } %>><%=
-                                                c.categoria %>
+                                    <option value="<%= c._id %>" 
+                                        <% // Comprobamos si estamos en modo edición y si la categoría del producto coincide con las categorias actuales %>
+                                        <% if (modoEdicion && producto.categoria_id && producto.categoria_id._id.toString() === c._id.toString()) { %>
+                                            selected
+                                        <% } %>
+                                    >
+                                        <%= c.categoria %>
                                     </option>
-                                    <% } %>
-
+                                <% } %>
                             </select>
-                        </div>
+                        </div>                                                                   
 
                         <!-- ID del producto oculto si está en modo edición -->
                         <% if (modoEdicion) { %>

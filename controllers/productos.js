@@ -3,58 +3,57 @@ const { ObjectId } = require("mongodb");
 const Producto = require("../models/producto");
 const Categoria = require("../models/categoria");
 const Pedido = require("../models/pedido");
+const ITEMS_PER_PAGE = 5;
 
 const fs = require('fs');
 const path = require('path');
 const PDFDocument = require('pdfkit');
 
 exports.getHome = (req, res, next) => {
-  const categoria_ruta = req.params.categoria_ruta; // Obtener la ruta de la categoría desde los parámetros de la URL
+  const categoria_ruta = req.params.categoria_ruta || null;
+  const page = parseInt(req.query.page) || 1;
 
-  Promise.all([
-    Categoria.find(), // Obtener todas las categorías
-    Producto.find().populate('categoria_id') // Popular los productos con la información de categoría
-  ])
-    .then(([categorias, productos]) => {
-      let productosFiltrados = productos; // Inicializar con todos los productos
+  Categoria.find()
+    .then(categorias => {
+      const categoriaSeleccionada = categoria_ruta
+        ? categorias.find(cat => cat.ruta === categoria_ruta)
+        : null;
 
-      if (categoria_ruta) {
-        const categoriaSeleccionada = categorias.find(cat => cat.ruta === categoria_ruta); // Buscar categoría por 'ruta'
-        if (categoriaSeleccionada) {
-          productosFiltrados = productos.filter(
-            producto => producto.categoria_id && producto.categoria_id._id.toString() === categoriaSeleccionada._id.toString()
-          );
-        }
-      }
+      const filtro = categoriaSeleccionada
+        ? { categoria_id: categoriaSeleccionada._id }
+        : {};
 
+      return Promise.all([
+        Producto.find(filtro).countDocuments(), // Total de documentos
+        Producto.find(filtro) // Productos filtrados
+          .skip((page - 1) * ITEMS_PER_PAGE)
+          .limit(ITEMS_PER_PAGE)
+          .populate('categoria_id'),
+        categorias,
+      ]);
+    })
+    .then(([documentCount, productos, categorias]) => {
       const titulo = categoria_ruta
         ? `Categoría: ${categorias.find(cat => cat.ruta === categoria_ruta)?.categoria || 'No encontrada'}`
-        : "Página principal de la Tienda";
+        : 'Página principal de la Tienda';
 
-      // pagina de inicio
-      if (!categoria_ruta) {
-        res.render('tienda/home', {
-          prods: productosFiltrados,
-          categorias: categorias,
-          titulo: titulo,
-          path: `/${categoria_ruta || ''}`,
-          autenticado: req.session.autenticado
-        });
-      } else {
-        res.render('tienda/index', {
-          prods: productosFiltrados,
-          categorias: categorias,
-          titulo: titulo,
-          path: `/${categoria_ruta || ''}`,
-          autenticado: req.session.autenticado
-        });
-      }
+      res.render(categoria_ruta ? 'tienda/index' : 'tienda/home', {
+        prods: productos,
+        categorias: categorias,
+        titulo: titulo,
+        path: `/${categoria_ruta || ''}`,
+        autenticado: req.session.autenticado,
+        page: page,
+        lastPage: Math.ceil(documentCount / ITEMS_PER_PAGE),
+      });
     })
     .catch(err => {
-      console.error("Error al cargar la tienda: ", err);
-      res.status(500).send("Error al cargar la tienda");
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
     });
 };
+
 
 exports.getProductos = (req, res, next) => {
   const categoria_ruta = req.params.categoria_ruta ? req.params.categoria_ruta : null;
@@ -77,13 +76,15 @@ exports.getProductos = (req, res, next) => {
         });
       })
       .catch(err => {
-        console.log(err);
-        res.status(500).send('Error al obtener productos');
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
       });
   })
   .catch(err => {
-    console.log(err);
-    res.status(500).send('Error al obtener categorías');
+    const error = new Error(err);
+    error.httpStatusCode = 500;
+    return next(error);
   });
 };
 
@@ -103,7 +104,11 @@ exports.getCarrito = async (req, res, next) => {
         autenticado: req.session.autenticado
       });
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 
 };
 
@@ -128,8 +133,9 @@ exports.postCarrito = (req, res, next) => {
       res.redirect('/carrito');
     })
     .catch(err => {
-      console.error(err);
-      next(err);
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
     });
 };
 
@@ -141,7 +147,11 @@ exports.postEliminarProductoCarrito = async (req, res) => {
     .then(result => {
       res.redirect('/carrito');
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
 exports.getProducto = (req, res) => {
@@ -166,7 +176,11 @@ exports.getPedidos = (req, res, next) => {
               autenticado: req.session.autenticado
           });
       })
-      .catch(err => console.log(err));
+      .catch(err => {
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
+      });
 };
 
 exports.postPedido = (req, res, next) => {
@@ -197,7 +211,11 @@ exports.postPedido = (req, res, next) => {
       .then(() => {
           res.redirect('/pedidos');
       })
-      .catch(err => console.log(err));
+      .catch(err => {
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
+      });
 };
 
 exports.getCarritoDesplegable = (req, res, next) => {
@@ -223,8 +241,9 @@ exports.getCarritoDesplegable = (req, res, next) => {
           });
       })
       .catch(err => {
-          console.error(err);
-          res.status(500).json({ error: 'Error al obtener el carrito' });
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);  
       });
 };
 
@@ -254,8 +273,9 @@ exports.modificarCantidadCarrito = (req, res, next) => {
       res.redirect('/carrito');
     })
     .catch(err => {
-      console.error(err);
-      next(err);
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
     });
 };
 
@@ -340,5 +360,9 @@ exports.getComprobante = (req, res, next) => {
 
       pdfDoc.end();
     })
-    .catch(err => console.error(err));
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };

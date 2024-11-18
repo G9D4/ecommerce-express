@@ -1,6 +1,7 @@
 const { ObjectId } = require("mongodb");
 const Producto = require("../models/producto");
 const Categoria = require("../models/categoria");
+const { validationResult } = require("express-validator");
 
 exports.getCrearProducto = (req, res, next) => {
   Categoria
@@ -12,13 +13,17 @@ exports.getCrearProducto = (req, res, next) => {
         tienecaracteristicas: false,
         modoEdicion: false,
         autenticado: req.session.autenticado,
-        // tieneError: false,
-        // mensajeError: null,
-        // erroresValidacion: [],
         categorias: categorias,
+        mensajeError: null,
+        tieneError: false,
+        erroresValidacion: []
       });
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
 exports.postCrearProducto = async (req, res, next) => {
@@ -27,7 +32,33 @@ exports.postCrearProducto = async (req, res, next) => {
   const precio = Number(req.body.precio);
   const descripcion = req.body.descripcion;
   const caracteristicas = req.body.caracteristicas != "" ? req.body.caracteristicas.split(",") : null;
-  const categoria_id = req.body.categoria; // Capturando la categoría
+  const categoria_id = req.body.categoria;
+
+  const categorias = await Categoria.find().then(categorias => { return categorias })
+  
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.status(422).render('admin/editar-producto', {
+        titulo: "Crear Producto",
+        path: "/admin/crear-producto",
+        modoEdicion: false,
+        tieneError: true,
+        mensajeError: errors.array()[0].msg,
+        tienecaracteristicas: true,
+        erroresValidacion: errors.array(),
+        categorias,
+        producto: {
+            nombreproducto: nombreproducto,
+            urlImagen: urlImagen,
+            precio: precio,
+            descripcion: descripcion,
+            caracteristicas: caracteristicas,
+            categoria_id: categoria_id,
+        },
+    });
+  }
+
   const producto = new Producto({ nombreproducto: nombreproducto, precio: precio, descripcion: descripcion, urlImagen: urlImagen, caracteristicas: caracteristicas, categoria_id: categoria_id, idUsuario: req.usuario._id });
 
   producto.save()
@@ -35,7 +66,11 @@ exports.postCrearProducto = async (req, res, next) => {
       console.log(result);
       res.redirect('/admin/productos');
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
 exports.getProductos = (req, res, next) => {
@@ -53,13 +88,15 @@ exports.getProductos = (req, res, next) => {
           });
         })
         .catch(err => {
-          console.log('Error al obtener las categorías', err);
-          next(err);
+          const error = new Error(err);
+          error.httpStatusCode = 500;
+          return next(error);
         });
     })
     .catch(err => {
-      console.log('Error al obtener los productos', err);
-      next(err); 
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
     });
 };
 
@@ -93,7 +130,11 @@ exports.getCategorias = (req, res, next) => {
         autenticado: req.session.autenticado
       });
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
 exports.postCategoria = (req, res, next) => {
@@ -114,7 +155,11 @@ exports.postCategoria = (req, res, next) => {
         console.log('Categoría actualizada');
         res.redirect('/admin/categorias');
       })
-      .catch(err => console.log(err));
+      .catch(err => {
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
+      });
   } else {
     // Modo creación
     const nuevaCategoria = new Categoria({
@@ -127,7 +172,11 @@ exports.postCategoria = (req, res, next) => {
         console.log('Categoría creada');
         res.redirect('/admin/categorias');
       })
-      .catch(err => console.log(err));
+      .catch(err => {
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
+      });
   }
 };
 
@@ -139,7 +188,11 @@ exports.postEliminarCategoria = (req, res, next) => {
       console.log('Categoría eliminada');
       res.redirect('/admin/categorias');
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
 // Controlador para obtener el producto a editar
@@ -162,12 +215,23 @@ exports.getEditProductos = (req, res, next) => {
             tienecaracteristicas: producto.caracteristicas != null ? true : false,
             modoEdicion: true,
             autenticado: req.session.autenticado,
-            categorias: categorias
+            categorias: categorias,
+            mensajeError: null,
+            tieneError: false,
+            erroresValidacion: []
           });
         })
-        .catch(err => console.log(err));
+        .catch(err => {
+          const error = new Error(err);
+          error.httpStatusCode = 500;
+          return next(error);
+        });
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
 // Controlador para guardar los cambios del producto editado
@@ -178,33 +242,58 @@ exports.postEditProductos = async (req, res, next) => {
   const descripcion = req.body.descripcion;
   const urlImagen = req.body.urlImagen;
   const categoria_id = new ObjectId(req.body.categoria);
-  // console.log(categoria_id);
   const caracteristicas = req.body.caracteristicas != "" ? req.body.caracteristicas.split(",") : null;
+
+  const categorias = await Categoria.find().then(categorias => { return categorias });
+
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.status(422).render('admin/editar-producto', {
+        titulo: "Editar Producto",
+        path: "/admin/editar-producto",
+        modoEdicion: true,
+        tieneError: true,
+        categorias: categorias,
+        mensajeError: errors.array()[0].msg,
+        tienecaracteristicas: true,
+        erroresValidacion: errors.array(),
+        producto: {
+            _id: productoId,
+            nombreproducto: nombreproducto,
+            urlImagen: urlImagen,
+            precio: precio,
+            descripcion: descripcion,
+            caracteristicas: caracteristicas,
+            categoria_id: categoria_id, // categoria: categoria_id
+        },
+    });
+  }
 
   // Actualiza el producto
   Producto.findById(productoId)
     .then(producto => {
-      // console.log(producto.idUsuario.toString());
-      // console.log(req.usuario._id.toString());
       if (producto.idUsuario.toString() !== req.usuario._id.toString()) {
-        console.log("No tienes permisos para editar este producto"); // New Error Message
+        // Si el producto no es del usuario, no permite actualizar
         return res.redirect('/');
-      }
+    }
       producto.nombreproducto = nombreproducto;
       producto.precio = precio;
       producto.descripcion = descripcion;
       producto.urlImagen = urlImagen;
-      producto.caracteristicas = caracteristicas;
       producto.categoria_id = categoria_id;
-      // producto.idUsuario = req.usuario._id
-      console.log("Nuevo",producto);
+      producto.caracteristicas = caracteristicas;
       return producto.save();
     })
     .then(result => {
-      console.log('Producto actualizado satisfactoriamente', result);
+      console.log('Producto actualizado satisfactoriamente');
       res.redirect('/admin/productos');
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
 exports.postEliminarProducto = async (req, res) => {
@@ -214,5 +303,9 @@ exports.postEliminarProducto = async (req, res) => {
       console.log('Producto eliminado satisfactoriamente');
       res.redirect('/admin/productos');
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };

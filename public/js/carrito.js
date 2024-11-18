@@ -19,5 +19,9 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             cartTotalPrice.textContent = total.toFixed(2); // Mostrar el total
         })
-        .catch(err => console.error('Error fetching cart items:', err));
+        .catch(err => {
+            const error = new Error(err);
+            error.httpStatusCode = 500;
+            return next(error);
+        });
 });

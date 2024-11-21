@@ -36,6 +36,38 @@ exports.getProductos = async (req, res) => {
       res.render('tienda/index', {
         prods: productos,
         titulo: `${categoria_id.categoria}`,
+        categoriaRuta: categoria_ruta,
+        sortBy: 'position',
+        path: `/${categoria_ruta || ""}`,
+        autenticado: req.session.autenticado
+      });
+    })
+    .catch(err => console.log(err));
+
+};
+
+exports.getProductosSorted = async (req, res) => {
+  const sortBy = req.query.productOrder
+  const categoria_ruta = req.params.categoria_ruta ? req.params.categoria_ruta : null;
+  const categorias = await Categoria.find().then(categorias => { return categorias });
+  const categoria_id = categoria_ruta ? categorias.find(x => x.ruta == categoria_ruta) : null;
+
+  Producto.find(categoria_id ? { categoria_id: categoria_id } : {}).populate('categoria_id')
+    .then(productos => {
+      productos.forEach(producto => { producto.categoria = producto.categoria_id.categoria })
+      if (sortBy === 'low-price') {
+        productos.sort((a, b) => a.precio - b.precio);
+      } else if (sortBy === 'high-price') {
+        productos.sort((a, b) => b.precio - a.precio);
+      } else if (sortBy === 'name') {
+        productos.sort((a, b) => a.nombreproducto.localeCompare(b.nombreproducto));
+      }
+
+      res.render('tienda/index', {
+        prods: productos,
+        titulo: `${categoria_id.categoria}`,
+        categoriaRuta: categoria_ruta,
+        sortBy: sortBy,
         path: `/${categoria_ruta || ""}`,
         autenticado: req.session.autenticado
       });
@@ -52,7 +84,6 @@ exports.getCarrito = async (req, res, next) => {
       const productos = usuario.carrito.productos;
       productos.forEach(x => x.dataProducto = x.idProducto);
 
-      console.log('productos', productos)
       res.render('tienda/carrito', {
         path: '/carrito',
         titulo: 'Mi Carrito',
@@ -75,7 +106,6 @@ exports.postCarrito = async (req, res) => {
       return req.usuario.agregarAlCarrito(producto, cantidad);
     })
     .then(result => {
-      console.log(result);
       res.redirect('/carrito');
     })
     .catch(err => console.log(err));
@@ -140,33 +170,33 @@ exports.postPedido = async (req, res, next) => {
       res.redirect('/pedidos');
     })
     .catch(err => console.log(err));
-}; 
+};
 
 exports.getCarritoDesplegable = (req, res, next) => {
   req.usuario
-      .populate('carrito.productos.idProducto')
-      .then(usuario => {
-          const productosCarrito = usuario.carrito.productos.map(item => {
-              return {
-                  id: item.idProducto._id,
-                  nombreproducto: item.idProducto.nombreproducto,
-                  cantidad: item.cantidad,
-                  precio: item.idProducto.precio,
-                  imagen: item.idProducto.urlImagen
-              };
-          });
-
-          const precioTotal = productosCarrito.reduce((total, item) => {
-              return total + item.precio * item.cantidad; // Calcular el precio total del carrito
-          }, 0);
-
-          res.json({
-              productos: productosCarrito,
-              precioTotal: precioTotal
-          });
-      })
-      .catch(err => {
-          console.error(err);
-          res.status(500).json({ error: 'Error al obtener el carrito' });
+    .populate('carrito.productos.idProducto')
+    .then(usuario => {
+      const productosCarrito = usuario.carrito.productos.map(item => {
+        return {
+          id: item.idProducto._id,
+          nombreproducto: item.idProducto.nombreproducto,
+          cantidad: item.cantidad,
+          precio: item.idProducto.precio,
+          imagen: item.idProducto.urlImagen
+        };
       });
+
+      const precioTotal = productosCarrito.reduce((total, item) => {
+        return total + item.precio * item.cantidad; // Calcular el precio total del carrito
+      }, 0);
+
+      res.json({
+        productos: productosCarrito,
+        precioTotal: precioTotal
+      });
+    })
+    .catch(err => {
+      console.error(err);
+      res.status(500).json({ error: 'Error al obtener el carrito' });
+    });
 };

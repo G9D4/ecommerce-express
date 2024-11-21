@@ -21,12 +21,12 @@
                             </p>
                             <div>
                                 <span>Ordenar por</span>
-                                <form action="/categoria/<%= path %>?product_list_order=:order" method="POST">
-                                    <select name="order" id="order">
-                                        <option value="position">Posición</option>
-                                        <option value="low-price">Menor precio</option>
-                                        <option value="high-price">Mayor precio</option>
-                                        <option value="name">Nombre</option>
+                                <form id="formOrder" action="/categoria/<%= categoriaRuta %>?" method="GET">
+                                    <select name="productOrder" id="productOrder">
+                                        <option value="position" <% if (sortBy === 'position') { %>selected<% } %>>Posición</option>
+                                        <option value="low-price" <% if (sortBy === 'low-price') { %>selected<% } %>>Menor precio</option>
+                                        <option value="high-price" <% if (sortBy === 'high-price') { %>selected<% } %>>Mayor precio</option>
+                                        <option value="name" <% if (sortBy === 'name') { %>selected<% } %>>Nombre</option>
                                     </select>
                                 </form>
                             </div>
@@ -62,3 +62,5 @@
             </main>
 
             <%- include('../includes/end.ejs') %>
+
+            <script src="/js/sort.js"></script>

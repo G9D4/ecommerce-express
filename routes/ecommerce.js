@@ -9,8 +9,8 @@ router.get('/carrito', isAuth, productosController.getCarrito);
 router.post('/carrito', isAuth, productosController.postCarrito)
 router.get('/api/carrito',isAuth, productosController.getCarritoDesplegable); // info para el carrito
 router.post('/eliminar-producto-carrito', isAuth, productosController.postEliminarProductoCarrito);
-router.get('/categoria/:categoria_ruta?', isAuth, productosController.getProductos);
-router.get('/categoria/:categoria_ruta?product_list_order=:order', isAuth, productosController.getProductos);
+router.get('/categoria/:categoria_ruta?', isAuth, productosController.getProductosSorted);
+router.get('/categoria/:categoria_ruta', isAuth, productosController.getProductos);
 router.get('/', isAuth, productosController.getHome);
 
 router.get('/productos/:idProducto', isAuth, productosController.getProducto);

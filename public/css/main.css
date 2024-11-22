@@ -378,3 +378,23 @@ main {
 .view-cart:hover {
   background-color: #e9ecef;
 }
+
+/* BREADCRUMBS */
+
+.breadcrumbs {
+  background-color: #1F1F1F;
+  color: rgba(255,255,255,0.7);
+  padding: 8px 40px;
+  font-size: 12px;
+  display: flex;
+  gap: 8px;
+}
+
+.breadcrumbs a {
+  color: rgba(255,255,255,0.7);
+  text-decoration: none;
+}
+
+.breadcrumbs strong {
+  color: white;
+}

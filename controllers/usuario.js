@@ -47,7 +47,11 @@ exports.postLogin = async (req, res, next) => {
             req.session.usuario = usuario;
             return req.session.save(err => {
               console.log(err);
-              res.redirect('/')
+              if (req.session.usuario.isadmin == 1) {
+                res.redirect('/admin/admin-dashboard');
+              } else {
+                res.redirect('/');
+              }
             })
           }
           req.flash('error', 'Las credenciales son invalidas')

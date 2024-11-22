@@ -3,6 +3,20 @@ const Producto = require("../models/producto");
 const Categoria = require("../models/categoria");
 
 
+exports.getAdminDashboard = async (req, res, next) => {
+  try {
+  //   const categorias = await Categoria.find().then(categorias => { return categorias })
+
+    res.render("admin/admin-dashboard", {
+      titulo: "Dashboard",
+      path: "/admin/dashboard",
+      
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 exports.getCrearProducto = async (req, res, next) => {
   try {
     const categorias = await Categoria.find().then(categorias => { return categorias })

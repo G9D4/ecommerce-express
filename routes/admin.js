@@ -6,6 +6,7 @@ const usuarioController = require('../controllers/usuario')
 const adminController = require('../controllers/admin')
 const isAuth = require('../middleware/is-auth');
 
+router.get('/admin-dashboard', isAuth, adminController.getAdminDashboard);
 router.get('/crear-producto', isAuth, adminController.getCrearProducto);
 router.post('/crear-producto', isAuth, adminController.postCrearProducto);
 

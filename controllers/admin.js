@@ -49,8 +49,8 @@ exports.postCrearProducto = async (req, res, next) => {
     });
 
   }
-S
-  const urlImagen = `${req.protocol}://${req.get('host')}/imagenes/${imagen.filename}`;
+
+  const urlImagen = imagen.path;
 
   const producto = new Producto({ 
     nombreproducto: nombreproducto, 

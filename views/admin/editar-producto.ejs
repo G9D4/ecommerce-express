@@ -92,9 +92,10 @@
                     const urlImagenInput = document.getElementById('urlImagen');
                     const previewImage = document.getElementById('previewImage');
 
+                    // TODO: cambiar event por change y pasar este script a un js
                     urlImagenInput.addEventListener('input', function () {
                         const imageUrl = urlImagenInput.value;
-                        previewImage.src = imageUrl ? imageUrl : '';
+                        previewImage.src = imageUrl ? imageUrl : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQVNer1ZryNxWVXojlY9Hoyy1-4DVNAmn7lrg&s';
                     });
                 </script>
     </body>

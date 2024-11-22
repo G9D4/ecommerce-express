@@ -21,7 +21,7 @@ exports.getCrearProducto = async (req, res, next) => {
 };
 
 exports.postCrearProducto = async (req, res, next) => {
-  console.log("bazinga");
+  
   const nombreproducto = req.body.nombreproducto;
   //const urlImagen = req.body.urlImagen;
 
@@ -49,8 +49,8 @@ exports.postCrearProducto = async (req, res, next) => {
     });
 
   }
-
-  const urlImagen = imagen.path;
+S
+  const urlImagen = `${req.protocol}://${req.get('host')}/imagenes/${imagen.filename}`;
 
   const producto = new Producto({ 
     nombreproducto: nombreproducto, 

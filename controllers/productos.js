@@ -32,14 +32,15 @@ exports.getProductos = async (req, res) => {
   Producto.find(categoria_id ? { categoria_id: categoria_id } : {}).populate('categoria_id')
     .then(productos => {
       productos.forEach(producto => { producto.categoria = producto.categoria_id.categoria })
-
       res.render('tienda/index', {
         prods: productos,
         titulo: `${categoria_id.categoria}`,
+        categoria: `${categoria_id.categoria}`,
         categoriaRuta: categoria_ruta,
         sortBy: 'position',
         path: `/${categoria_ruta || ""}`,
-        autenticado: req.session.autenticado
+        thirdBreadcrumb: false,
+        autenticado: req.session.autenticado,
       });
     })
     .catch(err => console.log(err));
@@ -66,6 +67,7 @@ exports.getProductosSorted = async (req, res) => {
       res.render('tienda/index', {
         prods: productos,
         titulo: `${categoria_id.categoria}`,
+        categoria: `${categoria_id.categoria}`,
         categoriaRuta: categoria_ruta,
         sortBy: sortBy,
         path: `/${categoria_ruta || ""}`,
@@ -124,11 +126,16 @@ exports.postEliminarProductoCarrito = async (req, res) => {
 exports.getProducto = (req, res) => {
   const idProducto = req.params.idProducto;
   Producto.findById(idProducto).then((producto) => {
-    res.render("tienda/detalle-producto", {
-      producto: producto,
-      titulo: producto.nombre,
-      path: "/",
-    });
+    Categoria.findById(producto.categoria_id).then ((p) => {
+      res.render("tienda/detalle-producto", {
+        producto: producto,
+        titulo: producto.nombreproducto,
+        categoria: p.categoria,
+        categoriaRuta: p.ruta,
+        path: "/",
+        thirdBreadcrumb: true,
+      });
+    })
   });
 };
 

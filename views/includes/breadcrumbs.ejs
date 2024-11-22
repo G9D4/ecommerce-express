@@ -1,0 +1,20 @@
+<nav>
+    <a href="/">Inicio</a>
+    /
+    <% if (typeof thirdBreadcrumb == "undefined") { %>
+        <strong>
+            <%= categoria %>
+        </strong>
+    <% } else { %>
+        <a href="/categoria/<%= categoriaRuta %>">
+            <%= categoria %>
+        </a>
+        /
+        <strong>
+            <%= titulo %>
+        </strong>
+    <% } %>
+
+
+
+</nav>

@@ -74,6 +74,32 @@ exports.getProductos = async (req, res, next) => {
       prods: productos,
       titulo: "Administracion de Productos",
       path: "/admin/productos",
+      sortBy: 'position',
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+exports.getProductosSorted = async (req, res, next) => {
+  const sortBy = req.query.productOrder
+  try {
+    const productos = await Producto.find().populate('categoria_id').then(productos => { return productos })
+    productos.forEach(producto => { producto.categoria = producto.categoria_id.categoria })
+
+    if (sortBy === 'low-price') {
+      productos.sort((a, b) => a.precio - b.precio);
+    } else if (sortBy === 'high-price') {
+      productos.sort((a, b) => b.precio - a.precio);
+    } else if (sortBy === 'name') {
+      productos.sort((a, b) => a.nombreproducto.localeCompare(b.nombreproducto));
+    }
+
+    res.render("admin/productos", {
+      prods: productos,
+      titulo: "Administracion de Productos",
+      path: "/admin/productos",
+      sortBy: sortBy,
     });
   } catch (error) {
     console.log(error);

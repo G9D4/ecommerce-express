@@ -10,6 +10,7 @@ router.get('/admin-dashboard', isAuth, adminController.getAdminDashboard);
 router.get('/crear-producto', isAuth, adminController.getCrearProducto);
 router.post('/crear-producto', isAuth, adminController.postCrearProducto);
 
+router.get('/productos?', isAuth, adminController.getProductosSorted);
 router.get('/productos', isAuth, adminController.getProductos);
 
 

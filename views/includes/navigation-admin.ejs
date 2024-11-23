@@ -1,0 +1,8 @@
+<nav class="nav-admin">
+    <a href="/admin/categorias">Administrar categorías</a>
+    <a href="/admin/productos">Administrar productos</a>
+    <form class="box-center_flex" action="/usuario/logout" method="POST">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <button type="submit">Cerrar sesión</button>
+    </form>
+</nav>

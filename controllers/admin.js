@@ -12,9 +12,10 @@ exports.getAdminDashboard = async (req, res, next) => {
     const producto = await Producto.find().then(producto => { return producto })
     const usuario = await Usuario.find().then(usuario => { return usuario })
     const pedido = await Pedido.find().then(pedido => { return pedido })
-    
-    const categoria1 = categoria[0]
-    console.log("AAAAAAAAAA", categoria1._id.getTimestamp())
+  
+    const cluster = categoria.concat(producto, usuario, pedido);
+    const orderedCluster = cluster.sort((a, b) => new Date(a._id.getTimestamp()) - new Date(b._id.getTimestamp())).reverse();
+    const topCluster = orderedCluster.slice(0, 16)
 
     res.render("admin/admin-dashboard", {
       titulo: "Dashboard",
@@ -22,7 +23,8 @@ exports.getAdminDashboard = async (req, res, next) => {
       categoriaLength: categoria.length,
       productoLength: producto.length,
       usuarioLength: usuario.length,
-      pedidoLength: pedido.length,     
+      pedidoLength: pedido.length,
+      latestActivity: topCluster,
     });
   } catch (error) {
     console.log(error);
@@ -118,7 +120,7 @@ exports.postEditProductos = async (req, res, next) => {
     .then(producto => {
       if (producto.idUsuario.toString() !== req.usuario._id.toString()) {
         return res.redirect('/');
-    }
+      }
       producto.nombreproducto = nombreproducto;
       producto.precio = precio;
       producto.descripcion = descripcion;
@@ -136,7 +138,7 @@ exports.postEditProductos = async (req, res, next) => {
 
 exports.postEliminarProducto = async (req, res) => {
   const idProducto = req.body.idProducto;
-  Producto.deleteOne({_id: idProducto, idUsuario: req.usuario._id})
+  Producto.deleteOne({ _id: idProducto, idUsuario: req.usuario._id })
     .then(result => {
       console.log('Producto eliminado satisfactoriamente');
       res.redirect('/admin/productos');

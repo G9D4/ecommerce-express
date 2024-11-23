@@ -40,8 +40,40 @@
                     <p>Pedidos</p>
                 </div>
             </div>
-            <div>Actividad reciente</div>
-            <p>Proximamente</p>
+            <h3>Actividad reciente</h3>
+            <div>
+                <% for (let activity of latestActivity) { %>
+                    <% if (activity.categoria) { %>
+                        <div class="activity-container">
+                            <div class="activity-container_icon">
+                                <i class="fa-solid fa-icons"></i>
+                            </div>
+                            <p>Se creó la categoría <%= activity.categoria %></p>
+                        </div>
+                    <% } else if (activity.precio) { %>
+                        <div class="activity-container">
+                            <div class="activity-container_icon">
+                                <i class="fa-solid fa-box"></i>
+                            </div>
+                            <p>Se creó el producto <%= activity.nombreproducto %></p>
+                        </div>
+                    <% } else if (activity.email) { %>
+                        <div class="activity-container">
+                            <div class="activity-container_icon">
+                                <i class="fa-solid fa-user"></i>
+                            </div>
+                            <p>Se creó una cuenta para el email <%= activity.email %></p>
+                        </div>
+                    <% } else { %>
+                        <div class="activity-container">
+                            <div class="activity-container_icon">
+                                <i class="fa-solid fa-bag-shopping"></i>
+                            </div>
+                            <p>Se creó el pedido <%= activity._id %></p>
+                        </div>
+                    <% } %>
+                <% } %>
+            </div>
         </section>             
     </main>        
 </body>

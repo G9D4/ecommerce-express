@@ -210,6 +210,28 @@
     justify-content: end;
 }
 
+/* CREAR/EDITAR PRODUCTO */
+
+.back-anchor {
+    text-decoration: none;
+    color: black;
+    font-weight: 700;
+    display: flex;
+    gap: 8px;
+    padding: 4px 8px;
+}
+
+.back-anchor i {
+    align-content: center;
+}
+
+.back-anchor:hover {
+    background-color: #e8e8e8;
+    border-radius: 24px;
+    width: fit-content;
+    padding: 4px 8px;
+}
+
 .contenedor-formulario {
     display: flex;
     justify-content: space-around;

@@ -119,11 +119,12 @@ exports.postEditProductos = async (req, res, next) => {
   const caracteristicas = req.body.caracteristicas != "" ? req.body.caracteristicas.split(",") : null;
 
   // Actualiza el producto
-  Producto.findById(productoId)
+  /*Producto.findById(productoId)
     .then(producto => {
       if (producto.idUsuario.toString() !== req.usuario._id.toString()) {
+        console.log('Usuario no autorizado');
         return res.redirect('/');
-    }
+    } 
       producto.nombreproducto = nombreproducto;
       producto.precio = precio;
       producto.descripcion = descripcion;
@@ -138,7 +139,40 @@ exports.postEditProductos = async (req, res, next) => {
       console.log('Producto actualizado satisfactoriamente');
       res.redirect('/admin/productos');
     })
-    .catch(err => console.log(err));
+    .catch(err => console.log(err));*/
+    try {
+      const producto = await Producto.findById(productoId);
+  
+      if (!producto) {
+        console.log('Producto no encontrado');
+        return res.redirect('/404'); // Si no hay producto, redirige y detiene flujo
+      }
+  
+      if (producto.idUsuario.toString() !== req.usuario._id.toString()) {
+        console.log('Usuario no autorizado');
+        return res.redirect('/'); // Si el usuario no es el que agregó producto se detiene flujo
+      }
+  
+      producto.nombreproducto = nombreproducto;
+      producto.precio = precio;
+      producto.descripcion = descripcion;
+  
+      if (imagen) {
+        producto.urlImagen = imagen.path;
+      }
+  
+      producto.categoria_id = categoria_id;
+      producto.caracteristicas = caracteristicas;
+  
+      await producto.save(); 
+  
+      console.log('Producto actualizado satisfactoriamente');
+      return res.redirect('/admin/productos'); 
+    } catch (err) {
+      console.error('Error al actualizar el producto:', err);
+      return res.redirect('/500'); // Redirección a una pagina de error por fallo genérico
+    }
+    
 };
 
 exports.postEliminarProducto = async (req, res) => {

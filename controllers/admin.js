@@ -1,16 +1,28 @@
 const { ObjectId } = require("mongodb");
 const Producto = require("../models/producto");
 const Categoria = require("../models/categoria");
+const Usuario = require("../models/usuario");
+const Pedido = require("../models/pedido");
+
 
 
 exports.getAdminDashboard = async (req, res, next) => {
   try {
-  //   const categorias = await Categoria.find().then(categorias => { return categorias })
+    const categoria = await Categoria.find().then(categorias => { return categorias })
+    const producto = await Producto.find().then(producto => { return producto })
+    const usuario = await Usuario.find().then(usuario => { return usuario })
+    const pedido = await Pedido.find().then(pedido => { return pedido })
+    
+    const categoria1 = categoria[0]
+    console.log("AAAAAAAAAA", categoria1._id.getTimestamp())
 
     res.render("admin/admin-dashboard", {
       titulo: "Dashboard",
       path: "/admin/dashboard",
-      
+      categoriaLength: categoria.length,
+      productoLength: producto.length,
+      usuarioLength: usuario.length,
+      pedidoLength: pedido.length,     
     });
   } catch (error) {
     console.log(error);

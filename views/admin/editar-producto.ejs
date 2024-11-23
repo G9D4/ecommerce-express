@@ -46,6 +46,7 @@
 
                 <div class="input-form">
                     <label for="caracteristicas">Características principales</label>
+                    <small>Separar las características con una coma seguida de un espacio (", ")</small>
                     <textarea id="caracteristicas"
                         name="caracteristicas"><% if (modoEdicion){%><% if (tienecaracteristicas){%><%= producto.caracteristicas.join(",") %><%}%><%}%></textarea>
                 </div>

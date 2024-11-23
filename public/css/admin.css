@@ -349,6 +349,11 @@
     flex-direction: column;
 }
 
+small {
+    color:darkgray;
+    font-size: small;
+}
+
 .button-primary {
     background-color: #2089FF;
     color: white;

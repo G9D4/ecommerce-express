@@ -50,20 +50,18 @@
             <div class="grid">
                 <% for (let producto of prods) { %>
                     <article class="card product-item">
-                        <% if (producto.idUsuario.toString() === user.toString()) { %>
-                            <div class="card__actions">
-                              <a class="btn-editar" href="/admin/editar-producto/<%= producto._id %>?editar=true">
-                                <i class="fa-solid fa-pen-to-square fa-2x"></i>
-                              </a>
-                              <form action="/admin/eliminar-producto" method="POST">
-                                <input type="hidden" value="<%= producto._id %>" name="idProducto">
-                                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                                <button class="btn-eliminar" type="submit">
-                                  <i class="fa-solid fa-trash-can fa-2x"></i>
-                                </button>
-                              </form>
-                            </div>
-                        <% } %>
+                        <div class="card__actions">
+                            <a class="btn-editar" href="/admin/editar-producto/<%= producto._id %>?editar=true">
+                              <i class="fa-solid fa-pen-to-square fa-2x"></i>
+                            </a>
+                            <form action="/admin/eliminar-producto" method="POST">
+                              <input type="hidden" value="<%= producto._id %>" name="idProducto">
+                              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                              <button class="btn-eliminar" type="submit">
+                                <i class="fa-solid fa-trash-can fa-2x"></i>
+                              </button>
+                            </form>
+                        </div>
                         <div class="card__image">
                             <img src="/<%= producto.urlImagen %>" alt="<%= producto.nombreproducto %>">
                         </div>
@@ -76,7 +74,11 @@
                             <h2 class="product__price">S/. <%= producto.precio %></h2>
                             <p class="product__description"><strong>Descripción:</strong> <%= producto.descripcion %></p>
                             <p class="product__characteristics"><strong>Características:</strong> <%= producto.caracteristicas %></p>
-                            <p class="product__category"><strong>Categoría:</strong> <%= producto.categoria_id.categoria %></p>
+                            <% if (producto.categoria_id && producto.categoria_id.categoria) { %>
+                                <p class="product__category"><strong>Categoría:</strong> <%= producto.categoria_id.categoria %></p>
+                            <% } else { %>
+                                <p class="product__category"><strong>Categoría:</strong> Sin categoria</p>
+                            <% } %>
                         </div>
                     </article>
                 <% } %>

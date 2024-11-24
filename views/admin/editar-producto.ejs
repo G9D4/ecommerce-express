@@ -82,9 +82,14 @@
                                 name="categoria"
                                 class = "inputText">
                                 <% for (let c of categorias) { %>
-                                    <option value="<%=c._id%>" <% if ((modoEdicion || tieneError) &&
-                                        producto.categoria_id.toString()==c._id.toString()) { %>selected<% } %>><%= c.categoria %>
-                                    </option>
+                                    <% if (producto.categoria_id && producto.categoria_id.categoria) { %>
+                                        <option value="<%=c._id%>" <% if ((modoEdicion || tieneError) &&
+                                            producto.categoria_id.toString()==c._id.toString()) { %>selected<% } %>><%= c.categoria %>
+                                        </option>
+                                    <% } else { %>
+                                        <option value="<%=c._id%>"><%= c.categoria %>
+                                        </option>
+                                    <% } %>
                                 <% } %>
 
                             </select>

@@ -4,7 +4,7 @@ const Producto = require("../models/producto");
 const Categoria = require("../models/categoria");
 const { validationResult } = require("express-validator");
 
-const ITEMS_POR_PAGINA = 5;
+const ITEMS_POR_PAGINA = 6;
 
 exports.getCrearProducto = (req, res, next) => {
   Categoria
@@ -79,7 +79,7 @@ exports.postCrearProducto = async (req, res, next) => {
 exports.getProductos = (req, res, next) => {
   let page = +req.query.page || 1; // Página predeterminada si no se especifica
   let categoriaId = req.query.categoria || null; // Filtro por categoría
-  let creadorId = req.query.creador || req.session.usuarioId || null; // Filtro por creador, se usa el id de sesión si no se especifica
+  let creadorId = req.query.creador || null; // Filtro por creador
   
   let nroProductos;
   
@@ -102,6 +102,7 @@ exports.getProductos = (req, res, next) => {
         .then(categorias => {
           Usuario.find({ isadmin: 1 }) // Filtrar usuarios con isadmin: 1
             .then(creadores => {
+              console.log(req.usuario._id)
               res.render('admin/productos', {
                 prods: productos,
                 categorias: categorias,
@@ -109,6 +110,7 @@ exports.getProductos = (req, res, next) => {
                 titulo: "Administración de Productos",
                 path: "/admin/productos",
                 autenticado: req.session.autenticado,
+                user: req.usuario._id, 
                 page: page,
                 lastPage: Math.ceil(nroProductos / ITEMS_POR_PAGINA),
                 categoriaSeleccionada: categoriaId, // Pasar la categoría seleccionada al front-end

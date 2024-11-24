@@ -50,18 +50,20 @@
             <div class="grid">
                 <% for (let producto of prods) { %>
                     <article class="card product-item">
-                        <div class="card__actions">
-                            <a class="btn-editar" href="/admin/editar-producto/<%= producto._id %>?editar=true">
+                        <% if (producto.idUsuario.toString() === user.toString()) { %>
+                            <div class="card__actions">
+                              <a class="btn-editar" href="/admin/editar-producto/<%= producto._id %>?editar=true">
                                 <i class="fa-solid fa-pen-to-square fa-2x"></i>
-                            </a>
-                            <form action="/admin/eliminar-producto" method="POST">
+                              </a>
+                              <form action="/admin/eliminar-producto" method="POST">
                                 <input type="hidden" value="<%= producto._id %>" name="idProducto">
                                 <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                                 <button class="btn-eliminar" type="submit">
-                                    <i class="fa-solid fa-trash-can fa-2x"></i>
+                                  <i class="fa-solid fa-trash-can fa-2x"></i>
                                 </button>
-                            </form>
-                        </div>
+                              </form>
+                            </div>
+                        <% } %>
                         <div class="card__image">
                             <img src="<%= producto.urlImagen %>" alt="<%= producto.nombreproducto %>">
                         </div>

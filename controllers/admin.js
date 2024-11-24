@@ -1,7 +1,10 @@
 const { ObjectId } = require("mongodb");
+const Usuario = require('../models/usuario');
 const Producto = require("../models/producto");
 const Categoria = require("../models/categoria");
 const { validationResult } = require("express-validator");
+
+const ITEMS_POR_PAGINA = 5;
 
 exports.getCrearProducto = (req, res, next) => {
   Categoria
@@ -74,18 +77,49 @@ exports.postCrearProducto = async (req, res, next) => {
 };
 
 exports.getProductos = (req, res, next) => {
-  Producto.find()
-    .populate('categoria_id') // Esto incluye la información completa de la categoría en cada producto
+  let page = +req.query.page || 1; // Página predeterminada si no se especifica
+  let categoriaId = req.query.categoria || null; // Filtro por categoría
+  let creadorId = req.query.creador || req.session.usuarioId || null; // Filtro por creador, se usa el id de sesión si no se especifica
+  
+  let nroProductos;
+  
+  const filter = {};
+  if (categoriaId) filter.categoria_id = categoriaId; // Filtrar por categoría
+  if (creadorId) filter.idUsuario = creadorId; // Filtrar por creador (idUsuario)
+
+  Producto.find(filter) // Filtrar los productos según los parámetros
+    .populate('categoria_id') // Incluir la información de la categoría
+    .countDocuments() // Contar el número total de productos
+    .then(nroDocs => {
+      nroProductos = nroDocs;
+      return Producto.find(filter)
+        .skip((page - 1) * ITEMS_POR_PAGINA)
+        .limit(ITEMS_POR_PAGINA)
+        .populate('categoria_id'); // Asegurar paso de cateogoria de productos
+    })
     .then(productos => {
       Categoria.find()
         .then(categorias => {
-          res.render('admin/productos', {
-            prods: productos,
-            categorias: categorias,
-            titulo: "Administración de Productos",
-            path: "/admin/productos",
-            autenticado: req.session.autenticado
-          });
+          Usuario.find({ isadmin: 1 }) // Filtrar usuarios con isadmin: 1
+            .then(creadores => {
+              res.render('admin/productos', {
+                prods: productos,
+                categorias: categorias,
+                creadores: creadores,
+                titulo: "Administración de Productos",
+                path: "/admin/productos",
+                autenticado: req.session.autenticado,
+                page: page,
+                lastPage: Math.ceil(nroProductos / ITEMS_POR_PAGINA),
+                categoriaSeleccionada: categoriaId, // Pasar la categoría seleccionada al front-end
+                creadorSeleccionado: creadorId // Pasar el creador seleccionado al front-end
+              });
+            })
+            .catch(err => {
+              const error = new Error(err);
+              error.httpStatusCode = 500;
+              return next(error);
+            });
         })
         .catch(err => {
           const error = new Error(err);
@@ -99,6 +133,7 @@ exports.getProductos = (req, res, next) => {
       return next(error);
     });
 };
+
 
 exports.getCategorias = (req, res, next) => {
   const editMode = req.query.edit;

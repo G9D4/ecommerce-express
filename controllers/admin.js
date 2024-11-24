@@ -105,6 +105,7 @@ exports.getCategorias = (req, res, next) => {
   let categoria = null;
 
   Categoria.find()
+    .sort({ orden: 1 }) // Orden ascendente según el campo 'orden'
     .then(categorias => {
       if (editMode) {
         return Categoria.findById(editMode)
@@ -112,13 +113,15 @@ exports.getCategorias = (req, res, next) => {
             if (!categoriaEditada) {
               return res.redirect('/admin/categorias');
             }
-            categoria = categoriaEditada;
             res.render("admin/categorias", {
               titulo: "Administración de Categorías",
               path: "/admin/categorias",
               categorias: categorias,
-              categoria: categoria, // Se envía la categoría a editar
-              autenticado: req.session.autenticado
+              categoria: categoriaEditada, 
+              autenticado: req.session.autenticado,
+              mensajeError: null,
+              tieneError: false,
+              erroresValidacion: []
             });
           });
       }
@@ -127,7 +130,10 @@ exports.getCategorias = (req, res, next) => {
         path: "/admin/categorias",
         categorias: categorias,
         categoria: null, // No hay categoría a editar, es modo creación
-        autenticado: req.session.autenticado
+        autenticado: req.session.autenticado,
+        mensajeError: null,
+        tieneError: false,
+        erroresValidacion: []
       });
     })
     .catch(err => {
@@ -138,46 +144,105 @@ exports.getCategorias = (req, res, next) => {
 };
 
 exports.postCategoria = (req, res, next) => {
-  const { idCategoria, categoria, ruta } = req.body;
+  const { idCategoria, categoria, ruta, orden } = req.body;
 
-  if (idCategoria) {
-    // Modo edición
-    Categoria.findById(idCategoria)
-      .then(categoriaObj => {
-        if (!categoriaObj) {
-          return res.redirect('/admin/categorias');
-        }
-        categoriaObj.categoria = categoria;
-        categoriaObj.ruta = ruta.toLowerCase().replace(/\s+/g, "_"); // reemplaza los espacios con guion bajo
-        return categoriaObj.save();
-      })
-      .then(() => {
-        console.log('Categoría actualizada');
-        res.redirect('/admin/categorias');
-      })
-      .catch(err => {
-        const error = new Error(err);
-        error.httpStatusCode = 500;
-        return next(error);
-      });
-  } else {
-    // Modo creación
-    const nuevaCategoria = new Categoria({
-      categoria: categoria,
-      ruta: ruta.toLowerCase().replace(/\s+/g, "-"),
-      idUsuario: req.usuario._id
+  const categoriaId = idCategoria || undefined;
+
+  Categoria.find() 
+    .then(categorias => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(422).render('admin/categorias', {
+          titulo: idCategoria ? "Editar Categoría" : "Crear Categoría",
+          path: "/admin/categorias",
+          modoEdicion: !!idCategoria,
+          tieneError: true,
+          mensajeError: errors.array()[0].msg,
+          erroresValidacion: errors.array(),
+          categorias: categorias,
+          categoria: {
+            idCategoria: idCategoria,
+            categoria: categoria,
+            ruta: ruta,
+            orden: orden
+          }
+        });
+      }
+
+      return Categoria.findOne({ orden: orden, _id: { $ne: categoriaId } })
+        .then(ordenExiste => {
+          if (ordenExiste) {
+            return res.status(422).render('admin/categorias', {
+              titulo: idCategoria ? "Editar Categoría" : "Crear Categoría",
+              path: "/admin/categorias",
+              modoEdicion: !!idCategoria,
+              tieneError: true,
+              mensajeError: "El orden ya existe. Por favor, elige otro.",
+              erroresValidacion: [],
+              categorias: categorias,
+              categoria: {
+                idCategoria: idCategoria,
+                categoria: categoria,
+                ruta: ruta,
+                orden: orden
+              }
+            });
+          }
+
+          if (idCategoria) {
+            // Modo edición
+            return Categoria.findById(idCategoria)
+              .then(categoriaObj => {
+                if (!categoriaObj) {
+                  return res.redirect('/admin/categorias');
+                }
+                categoriaObj.categoria = categoria;
+                categoriaObj.ruta = ruta.toLowerCase().replace(/\s+/g, "-");
+                categoriaObj.orden = orden;
+                categoriaObj.idUsuario = req.usuario._id;
+                return categoriaObj.save();
+              })
+              .then(() => {
+                console.log('Categoría actualizada');
+                res.redirect('/admin/categorias');
+              })
+              .catch(err => {
+                const error = new Error(err);
+                error.httpStatusCode = 500;
+                return next(error);
+              });
+          } else {
+            // Modo creación
+            const nuevaCategoria = new Categoria({
+              categoria: categoria,
+              ruta: ruta.toLowerCase().replace(/\s+/g, "-"),
+              orden: orden,
+              idUsuario: req.usuario._id
+            });
+
+            return nuevaCategoria.save()
+              .then(() => {
+                console.log('Categoría creada');
+                res.redirect('/admin/categorias');
+              })
+              .catch(err => {
+                const error = new Error(err);
+                error.httpStatusCode = 500;
+                return next(error);
+              });
+          }
+        })
+        .catch(err => {
+          const error = new Error(err);
+          error.httpStatusCode = 500;
+          return next(error);
+        });
+    })
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
     });
-    nuevaCategoria.save()
-      .then(() => {
-        console.log('Categoría creada');
-        res.redirect('/admin/categorias');
-      })
-      .catch(err => {
-        const error = new Error(err);
-        error.httpStatusCode = 500;
-        return next(error);
-      });
-  }
 };
 
 exports.postEliminarCategoria = (req, res, next) => {
@@ -195,7 +260,7 @@ exports.postEliminarCategoria = (req, res, next) => {
     });
 };
 
-// Controlador para obtener el producto a editar
+
 exports.getEditProductos = (req, res, next) => {
   const idProducto = req.params.id;
   // console.log('Producto', idProducto);
@@ -309,3 +374,16 @@ exports.postEliminarProducto = async (req, res) => {
       return next(error);
     });
 };
+
+function actualizarOrdenCategorias() {
+  return Categoria.find()
+    .sort({ orden: 1 }) // Ordenar categorías por el campo 'orden'
+    .then(categorias => {
+      // Aquí podrías actualizar un archivo de navegación o una caché si es necesario
+      console.log('Categorías reordenadas para la navegación:', categorias.map(c => c.categoria));
+    })
+    .catch(err => {
+      console.error('Error actualizando el orden de las categorías:', err);
+      throw err;
+    });
+}

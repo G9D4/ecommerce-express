@@ -12,7 +12,14 @@ router.get('/productos', isAuth, adminController.getProductos);
 
 // Categorias Administrator
 router.get('/categorias', isAuth, adminController.getCategorias);
-router.post('/categorias', isAuth, adminController.postCategoria); // Crea o edita categorías
+router.post('/categorias',
+    [
+        body('categoria', 'El nombre de la categoría debe tener al menos 3 caracteres').trim().isLength({ min: 3 }),
+        body('orden', 'El orden debe ser un número').isInt({ min: 1 }) // Verifica que el orden sea un número mayor o igual a 1
+    ],
+    isAuth,
+    adminController.postCategoria
+);
 router.post('/categorias/eliminar/:id', isAuth, adminController.postEliminarCategoria); // Elimina categorías
 
 // Cambia la ruta de editar producto para incluir el ID del producto

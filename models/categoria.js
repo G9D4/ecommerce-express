@@ -14,6 +14,11 @@ const categoriaSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'Usuario',
     required: true
+  },
+  orden: {
+    type: Number,
+    required: true,
+    unique: true 
   }
 });
 

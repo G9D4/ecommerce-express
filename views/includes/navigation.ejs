@@ -13,17 +13,18 @@
         <ul class="main-header__item-list ">
             <% if (categorias.length > 0) { %>
                 <% categorias.forEach(categoria => { %>
-                    <li class="main-header__item box-center_flex">
-                        <a href="/categoria/<%= categoria.ruta %>">
-                            <%= categoria.categoria %>
-                        </a>
-                    </li>
+                  <li class="main-header__item box-center_flex">
+                    <a href="/categoria/<%= categoria.ruta %>">
+                      <%= categoria.categoria %>
+                    </a>
+                  </li>
                 <% }) %>
-            <% } else { %>
+              <% } else { %>
                 <li class="main-header__item box-center_flex">
-                    <span>No hay categorías disponibles</span>
+                  <span>No hay categorías disponibles</span>
                 </li>
-            <% } %>            
+            <% } %>
+                   
             <% if (typeof user=='object' && user.isadmin) { %>
                 <li class="main-header__item box-center_flex">
                     <a class="<%= path === '/admin/productos' ? 'active' : '' %>" href="/admin/productos">

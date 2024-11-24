@@ -69,7 +69,7 @@ app.use((req, res, next) => {
 
 app.use('/admin', adminRouter);
 app.use('/usuario', usuarioRouter)
-app.use(empresaRouter);
+app.use('/', empresaRouter);
 app.use(ecommerceRouter);
 
 app.use((req, res, next) => {

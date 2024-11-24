@@ -136,6 +136,8 @@ exports.getProductos = (req, res, next) => {
 
 exports.getCategorias = (req, res, next) => {
   const editMode = req.query.edit;
+  // console.log(req.query);
+  // console.log(editMode);
   let categoria = null;
 
   Categoria.find()
@@ -144,6 +146,7 @@ exports.getCategorias = (req, res, next) => {
       if (editMode) {
         return Categoria.findById(editMode)
           .then(categoriaEditada => {
+            // console.log(categoriaEditada);
             if (!categoriaEditada) {
               return res.redirect('/admin/categorias');
             }
@@ -183,6 +186,7 @@ exports.postCategoria = (req, res, next) => {
   const categoriaId = idCategoria || undefined;
 
   Categoria.find() 
+    .sort({ orden: 1 }) // Orden ascendente según el campo 'orden'
     .then(categorias => {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -195,7 +199,7 @@ exports.postCategoria = (req, res, next) => {
           erroresValidacion: errors.array(),
           categorias: categorias,
           categoria: {
-            idCategoria: idCategoria,
+            _id: idCategoria,
             categoria: categoria,
             ruta: ruta,
             orden: orden
@@ -204,6 +208,7 @@ exports.postCategoria = (req, res, next) => {
       }
 
       return Categoria.findOne({ orden: orden, _id: { $ne: categoriaId } })
+        .sort({ orden: 1 }) // Orden ascendente según el campo 'orden'
         .then(ordenExiste => {
           if (ordenExiste) {
             return res.status(422).render('admin/categorias', {
@@ -215,7 +220,7 @@ exports.postCategoria = (req, res, next) => {
               erroresValidacion: [],
               categorias: categorias,
               categoria: {
-                idCategoria: idCategoria,
+                _id: idCategoria,
                 categoria: categoria,
                 ruta: ruta,
                 orden: orden
@@ -226,6 +231,7 @@ exports.postCategoria = (req, res, next) => {
           if (idCategoria) {
             // Modo edición
             return Categoria.findById(idCategoria)
+              .sort({ orden: 1 }) // Orden ascendente según el campo 'orden'
               .then(categoriaObj => {
                 if (!categoriaObj) {
                   return res.redirect('/admin/categorias');

@@ -391,10 +391,10 @@ exports.postEditProductos = async (req, res, next) => {
         return res.redirect('/404'); // Si no hay producto, redirige y detiene flujo
       }
   
-      if (producto.idUsuario.toString() !== req.usuario._id.toString()) {
-        console.log('Usuario no autorizado');
-        return res.redirect('/'); // Si el usuario no es el que agregó producto se detiene flujo
-      }
+      // if (producto.idUsuario.toString() !== req.usuario._id.toString()) {
+      //   console.log('Usuario no autorizado');
+      //   return res.redirect('/'); // Si el usuario no es el que agregó producto se detiene flujo
+      // }
   
       producto.nombreproducto = nombreproducto;
       producto.precio = precio;

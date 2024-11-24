@@ -95,13 +95,42 @@
             <%- include('../includes/end.ejs') %>
 
                 <script>
-                    // Mostrar vista previa de la imagen cuando se ingresa la URL
+                    /*// Mostrar vista previa de la imagen cuando se ingresa la URL
                     const urlImagenInput = document.getElementById('urlImagen');
                     const previewImage = document.getElementById('previewImage');
 
                     urlImagenInput.addEventListener('input', function () {
                         const imageUrl = urlImagenInput.value;
                         previewImage.src = imageUrl ? imageUrl : '';
+                    });*/
+                    // Mostrar vista previa de la imagen cuando se ingresa la URL
+                    const urlImagenInput = document.getElementById('urlImagen');
+                    const archivoImagenInput = document.getElementById('imagen'); // Input tipo file
+                    const previewImage = document.getElementById('previewImage');
+
+                    // Vista previa cuando se ingresa una URL
+                    if (urlImagenInput) {
+                        urlImagenInput.addEventListener('input', function () {
+                            const imageUrl = urlImagenInput.value;
+                            previewImage.src = imageUrl ? imageUrl : '';
+                        });
+                    }
+
+                    // Vista previa cuando se selecciona un archivo
+                    archivoImagenInput.addEventListener('change', function () {
+                        const archivo = archivoImagenInput.files[0];
+                        if (archivo) {
+                                                        
+                            const imageUrl = URL.createObjectURL(archivo); // Crear una URL temporal para el archivo seleccionado
+                            previewImage.src = imageUrl;
+
+                            previewImage.onload = () => {
+                                URL.revokeObjectURL(imageUrl); // Limpia la URL temporal después de que la imagen se haya cargado
+                            };
+                        } else {
+                            previewImage.src = ''; //Limpia vista previa si no se selecciona archivo
+                        }
                     });
+                    
                 </script>
     </body>

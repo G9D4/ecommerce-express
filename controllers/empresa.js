@@ -11,9 +11,9 @@ exports.getNosotros = async (req, res, next) => {
 
 exports.getSoporte = async (req, res, next) => {
     try {
-        res.render("empresa/fqas", {
+        res.render("empresa/faqs", {
             titulo: "Soporte Técnico",
-            path: "/fqas"
+            path: "/faqs"
         });
     } catch (error) {
         console.log(error);

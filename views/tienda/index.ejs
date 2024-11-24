@@ -35,7 +35,7 @@
                                 </div> -->
                                 <div class="card__image">
                                     <a href="/productos/<%= producto._id %>">
-                                        <img src="<%= producto.urlImagen %>" alt="<%= producto.nombreproducto %>">
+                                        <img src="/<%= producto.urlImagen %>" alt="<%= producto.nombreproducto %>">
                                     </a>
                                 </div>
                                 <header class="card__header">
@@ -63,6 +63,7 @@
                             </article>
                         <% } %>
                     </div>
+                    <%- include('../includes/paginacion.ejs')%>
                 <% } else { %>
                     <h1>No hay productos</h1>
                 <% } %>

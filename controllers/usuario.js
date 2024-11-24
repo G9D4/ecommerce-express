@@ -1,4 +1,3 @@
-// const jwt = require("jsonwebtoken");
 const Usuario = require("../models/usuario");
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
@@ -62,17 +61,7 @@ exports.postLogin = async (req, res, next) => {
                 console.log(err);
                 res.redirect('/')
                 })
-            }/*
-            return res.status(422).render('login-usuario', {
-                path: '/usuario',
-                titulo: 'Ingreso de usuario',
-                mensajeError: 'Las credenciales son inválidas',
-                datosAnteriores: {
-                    email: email,
-                    password: password
-                },
-                erroresValidacion: []
-            });*/
+            }
             })
             .catch(err => {
                 console.log(err)
@@ -147,8 +136,10 @@ exports.postSignup = async (req, res, next) => {
           html: '<h1>Ha sido registrado exitosamente en proyecto Samsung</h1>'
         })
     })
-      .catch(err => {
-        console.log(err);
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
     });
 };
 
@@ -193,7 +184,9 @@ exports.postResetPassword = async (req, res, next) => {
         });
       })
       .catch(err => {
-        console.log(err);
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
       });
   });
 };
@@ -214,7 +207,9 @@ exports.getNewPassword = (req, res, next) => {
       });
     })
     .catch(err => {
-      console.log(err);
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
     });
 };
 
@@ -243,6 +238,8 @@ exports.postNewPassword = (req, res, next) => {
       res.redirect('/usuario/login');
     })
     .catch(err => {
-      console.log(err);
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
     });
 };

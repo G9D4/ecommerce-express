@@ -39,7 +39,9 @@
                             <input  
                                 type="file"
                                 name="imagen"
-                                id="imagen">
+                                id="imagen"
+                                
+                                src="<% if (modoEdicion || tieneError) { %>/<%= producto.urlImagen %><% } %>">
                         </div>
                         <!-- Precio del producto -->
                         <div class="input-form">

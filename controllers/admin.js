@@ -37,6 +37,7 @@ exports.postCrearProducto = async (req, res, next) => {
   const caracteristicas = req.body.caracteristicas.split(", ");
   const categoria_id = req.body.categoria; // Capturando la categoría
 
+  console.log('aaaaaaaaaaaaaaaaa',imagen);
 
   if(!imagen){
     return res.status(422).render('admin/editar-productos', {
@@ -129,7 +130,7 @@ exports.postEditProductos = async (req, res, next) => {
   const precio = Number(req.body.precio);
   const descripcion = req.body.descripcion;
   //const urlImagen = req.body.urlImagen;
-  const imagen = req.file;
+  let imagen =' ';
   const categoria_id = new ObjectId(req.body.categoria);
   const caracteristicas = req.body.caracteristicas != "" ? req.body.caracteristicas.split(",") : null;
 
@@ -137,28 +138,7 @@ exports.postEditProductos = async (req, res, next) => {
 
   const errors = validationResult(req);
 
-  if (!errors.isEmpty()) {
-    return res.status(422).render('admin/editar-producto', {
-        titulo: "Editar Producto",
-        path: "/admin/editar-producto",
-        modoEdicion: true,
-        tieneError: true,
-        categorias,
-        mensajeError: errors.array()[0].msg,
-        tienecaracteristicas: true,
-        erroresValidacion: errors.array(),
-        producto: {
-            _id: productoId,
-            nombreproducto: nombreproducto,
-            urlImagen: urlImagen,
-            precio: precio,
-            descripcion: descripcion,
-            caracteristicas: caracteristicas,
-            categoria_id: categoria_id, // categoria: categoria_id
-        },
-    });
-  }
-
+  console.log('aaaaaaaaaaaaaaaaa',imagen);
   // Actualiza el producto
   /*Producto.findById(productoId)
     .then(producto => {
@@ -199,10 +179,37 @@ exports.postEditProductos = async (req, res, next) => {
       producto.precio = precio;
       producto.descripcion = descripcion;
   
-      if (imagen) {
-        producto.urlImagen = imagen.path;
+      if(req.file){
+        imagen=req.file.path;
+      }else{
+        imagen=producto.urlImagen;
       }
-  
+
+      producto.urlImagen=imagen;
+      console.log('a',imagen);
+
+      if (!errors.isEmpty()) {
+        return res.status(422).render('admin/editar-producto', {
+            titulo: "Editar Producto",
+            path: "/admin/editar-producto",
+            modoEdicion: true,
+            tieneError: true,
+            categorias,
+            mensajeError: errors.array()[0].msg,
+            tienecaracteristicas: true,
+            erroresValidacion: errors.array(),
+            producto: { 
+                _id: productoId,
+                nombreproducto: nombreproducto,
+                urlImagen: imagen,
+                precio: precio,
+                descripcion: descripcion,
+                caracteristicas: caracteristicas,
+                categoria_id: categoria_id, // categoria: categoria_id
+            },
+        });
+      }
+
       producto.categoria_id = categoria_id;
       producto.caracteristicas = caracteristicas;
   
@@ -214,6 +221,7 @@ exports.postEditProductos = async (req, res, next) => {
       console.error('Error al actualizar el producto:', err);
       return res.redirect('/500'); // Redirección a una pagina de error por fallo genérico
     }
+    
     
 };
 

@@ -134,16 +134,16 @@ main {
 
 .btn {
   font: inherit;
-  border: 1px solid #00695c;
-  color: #00695c;
-  background: white;
+  border: 1px solid #2089FF;
+  color: #ffffff;
+  background: rgb(0, 0, 0);
   border-radius: 3px;
   cursor: pointer;
 }
 
 .btn:hover,
 .btn:active {
-  background-color: #00695c;
+  background-color: #2089FF;
   color: white;
 }
 
@@ -157,7 +157,7 @@ main {
 .btn2 {
   font: inherit;
   padding: 10px;
-  background: #2189FF;
+  background: #000000;
   color: white;
   border: none;
   border-radius: 23px;
@@ -166,7 +166,7 @@ main {
 
 .btn2:hover,
 .btn2:active {
-  background-color: #00695c;
+  background-color: #ffffff;
   color: white;
 }
 
@@ -174,7 +174,7 @@ main {
 .user-message {
   margin: auto;
   width: 90%;
-  border: 1px solid #4771fa;
+  border: 1px solid #ffffff;
   padding: 0.5rem;
   border-radius: 3px;
   background: #b9c9ff;
@@ -343,6 +343,31 @@ main {
   background-color: #e9ecef;
 }
 
+/* carrito */
+
+.total-container {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.total-container h2 {
+  margin: 0;
+  padding: 0;
+}
+
+.quantity-input {
+  width: 50px;
+  text-align: center;
+  margin-right: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 5px;
+}
+
+/* paginacion */
 .pagination {
   margin-top: 2rem;
   text-align: center;

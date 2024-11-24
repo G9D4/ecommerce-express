@@ -20,6 +20,7 @@ const productoSchema = new Schema({
   },
   caracteristicas: {
     type: Array,
+    required: true
   },
   categoria_id: {
     type: Schema.Types.ObjectId,

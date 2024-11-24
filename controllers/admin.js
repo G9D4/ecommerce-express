@@ -1,28 +1,32 @@
 const { ObjectId } = require("mongodb");
+const Usuario = require('../models/usuario');
 const Producto = require("../models/producto");
 const Categoria = require("../models/categoria");
 const { validationResult } = require("express-validator");
 
+const ITEMS_POR_PAGINA = 6;
 
-exports.getCrearProducto = async (req, res, next) => {
-  try {
-    const categorias = await Categoria.find().then(categorias => { return categorias })
-
-    res.render("admin/editar-producto", {
-      titulo: "Crear Producto",
-      path: "/admin/crear-producto",
-      tienecaracteristicas: false,
-      modoEdicion: false,
-      categorias,
-      mensajeError: null,
-      tieneError: false,
-      erroresValidacion: []
+exports.getCrearProducto = (req, res, next) => {
+  Categoria
+    .find()
+    .then(categorias => {
+      res.render('admin/editar-producto', { 
+        titulo: 'Crear Producto',
+        path: '/admin/crear-producto',
+        tienecaracteristicas: false,
+        modoEdicion: false,
+        autenticado: req.session.autenticado,
+        categorias: categorias,
+        mensajeError: null,
+        tieneError: false,
+        erroresValidacion: []
+      });
+    })
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
     });
-  } catch (err) {
-    const error = new Error(err);
-    error.httpStatusCode = 500;
-    return next(error);
-  }
 };
 
 exports.postCrearProducto = async (req, res, next) => {
@@ -76,51 +80,269 @@ exports.postCrearProducto = async (req, res, next) => {
     });
 };
 
-exports.getProductos = async (req, res, next) => {
-  try {
-    const productos = await Producto.find().populate('categoria_id').then(productos => { return productos })
-    productos.forEach(producto => { producto.categoria = producto.categoria_id.categoria })
+exports.getProductos = (req, res, next) => {
+  let page = +req.query.page || 1; // Página predeterminada si no se especifica
+  let categoriaId = req.query.categoria || null; // Filtro por categoría
+  let creadorId = req.query.creador || null; // Filtro por creador
+  
+  let nroProductos;
+  
+  const filter = {};
+  if (categoriaId) filter.categoria_id = categoriaId; // Filtrar por categoría
+  if (creadorId) filter.idUsuario = creadorId; // Filtrar por creador (idUsuario)
 
-    res.render("admin/productos", {
-      prods: productos,
-      titulo: "Administracion de Productos",
-      path: "/admin/productos",
+  Producto.find(filter) // Filtrar los productos según los parámetros
+    .populate('categoria_id') // Incluir la información de la categoría
+    .countDocuments() // Contar el número total de productos
+    .then(nroDocs => {
+      nroProductos = nroDocs;
+      return Producto.find(filter)
+        .skip((page - 1) * ITEMS_POR_PAGINA)
+        .limit(ITEMS_POR_PAGINA)
+        .populate('categoria_id'); // Asegurar paso de cateogoria de productos
+    })
+    .then(productos => {
+      Categoria.find()
+        .then(categorias => {
+          Usuario.find({ isadmin: 1 }) // Filtrar usuarios con isadmin: 1
+            .then(creadores => {
+              console.log(req.usuario._id)
+              res.render('admin/productos', {
+                prods: productos,
+                categorias: categorias,
+                creadores: creadores,
+                titulo: "Administración de Productos",
+                path: "/admin/productos",
+                autenticado: req.session.autenticado,
+                user: req.usuario._id, 
+                page: page,
+                lastPage: Math.ceil(nroProductos / ITEMS_POR_PAGINA),
+                categoriaSeleccionada: categoriaId, // Pasar la categoría seleccionada al front-end
+                creadorSeleccionado: creadorId // Pasar el creador seleccionado al front-end
+              });
+            })
+            .catch(err => {
+              const error = new Error(err);
+              error.httpStatusCode = 500;
+              return next(error);
+            });
+        })
+        .catch(err => {
+          const error = new Error(err);
+          error.httpStatusCode = 500;
+          return next(error);
+        });
+    })
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
     });
-  } catch (err) {
-    const error = new Error(err);
-    error.httpStatusCode = 500;
-    return next(error);
-  }
 };
 
-// Controlador para obtener el producto a editar
-exports.getEditProductos = async (req, res, next) => {
+exports.getCategorias = (req, res, next) => {
+  const editMode = req.query.edit;
+  // console.log(req.query);
+  // console.log(editMode);
+  let categoria = null;
 
-  try {
-    const categorias = await Categoria.find().then(categorias => { return categorias })
-    const productoId = req.params.id; // Obtiene el ID del producto de los parámetros de la URL
-    const producto = await Producto.findById(productoId);
-
-    if (!producto) {
-      return res.status(404).send("Producto no encontrado");
-    }
-
-    res.render("admin/editar-producto", {
-      titulo: "Editar Producto",
-      path: "/admin/editar-producto",
-      producto: producto, // Pasar el producto a la vista
-      tienecaracteristicas: producto.caracteristicas != null ? true : false,
-      modoEdicion: true,
-      categorias,
-      mensajeError: null,
-      tieneError: false,
-      erroresValidacion: []
+  Categoria.find()
+    .sort({ orden: 1 }) // Orden ascendente según el campo 'orden'
+    .then(categorias => {
+      if (editMode) {
+        return Categoria.findById(editMode)
+          .then(categoriaEditada => {
+            // console.log(categoriaEditada);
+            if (!categoriaEditada) {
+              return res.redirect('/admin/categorias');
+            }
+            res.render("admin/categorias", {
+              titulo: "Administración de Categorías",
+              path: "/admin/categorias",
+              categorias: categorias,
+              categoria: categoriaEditada, 
+              autenticado: req.session.autenticado,
+              mensajeError: null,
+              tieneError: false,
+              erroresValidacion: []
+            });
+          });
+      }
+      res.render("admin/categorias", {
+        titulo: "Administración de Categorías",
+        path: "/admin/categorias",
+        categorias: categorias,
+        categoria: null, // No hay categoría a editar, es modo creación
+        autenticado: req.session.autenticado,
+        mensajeError: null,
+        tieneError: false,
+        erroresValidacion: []
+      });
+    })
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
     });
-  } catch (err) {
-    const error = new Error(err);
-    error.httpStatusCode = 500;
-    return next(error);
-  }
+};
+
+exports.postCategoria = (req, res, next) => {
+  const { idCategoria, categoria, ruta, orden } = req.body;
+
+  const categoriaId = idCategoria || undefined;
+
+  Categoria.find() 
+    .sort({ orden: 1 }) // Orden ascendente según el campo 'orden'
+    .then(categorias => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(422).render('admin/categorias', {
+          titulo: idCategoria ? "Editar Categoría" : "Crear Categoría",
+          path: "/admin/categorias",
+          modoEdicion: !!idCategoria,
+          tieneError: true,
+          mensajeError: errors.array()[0].msg,
+          erroresValidacion: errors.array(),
+          categorias: categorias,
+          categoria: {
+            _id: idCategoria,
+            categoria: categoria,
+            ruta: ruta,
+            orden: orden
+          }
+        });
+      }
+
+      return Categoria.findOne({ orden: orden, _id: { $ne: categoriaId } })
+        .sort({ orden: 1 }) // Orden ascendente según el campo 'orden'
+        .then(ordenExiste => {
+          if (ordenExiste) {
+            return res.status(422).render('admin/categorias', {
+              titulo: idCategoria ? "Editar Categoría" : "Crear Categoría",
+              path: "/admin/categorias",
+              modoEdicion: !!idCategoria,
+              tieneError: true,
+              mensajeError: "El orden ya existe. Por favor, elige otro.",
+              erroresValidacion: [],
+              categorias: categorias,
+              categoria: {
+                _id: idCategoria,
+                categoria: categoria,
+                ruta: ruta,
+                orden: orden
+              }
+            });
+          }
+
+          if (idCategoria) {
+            // Modo edición
+            return Categoria.findById(idCategoria)
+              .sort({ orden: 1 }) // Orden ascendente según el campo 'orden'
+              .then(categoriaObj => {
+                if (!categoriaObj) {
+                  return res.redirect('/admin/categorias');
+                }
+                categoriaObj.categoria = categoria;
+                categoriaObj.ruta = ruta.toLowerCase().replace(/\s+/g, "-");
+                categoriaObj.orden = orden;
+                categoriaObj.idUsuario = req.usuario._id;
+                return categoriaObj.save();
+              })
+              .then(() => {
+                console.log('Categoría actualizada');
+                res.redirect('/admin/categorias');
+              })
+              .catch(err => {
+                const error = new Error(err);
+                error.httpStatusCode = 500;
+                return next(error);
+              });
+          } else {
+            // Modo creación
+            const nuevaCategoria = new Categoria({
+              categoria: categoria,
+              ruta: ruta.toLowerCase().replace(/\s+/g, "-"),
+              orden: orden,
+              idUsuario: req.usuario._id
+            });
+
+            return nuevaCategoria.save()
+              .then(() => {
+                console.log('Categoría creada');
+                res.redirect('/admin/categorias');
+              })
+              .catch(err => {
+                const error = new Error(err);
+                error.httpStatusCode = 500;
+                return next(error);
+              });
+          }
+        })
+        .catch(err => {
+          const error = new Error(err);
+          error.httpStatusCode = 500;
+          return next(error);
+        });
+    })
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
+};
+
+exports.postEliminarCategoria = (req, res, next) => {
+  const categoriaId = req.params.id;
+
+  Categoria.deleteOne({ _id: categoriaId })
+    .then(() => {
+      console.log('Categoría eliminada');
+      res.redirect('/admin/categorias');
+    })
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
+};
+
+
+exports.getEditProductos = (req, res, next) => {
+  const idProducto = req.params.id;
+  // console.log('Producto', idProducto);
+  Producto.findById(idProducto)
+    .populate('categoria_id') 
+    .then(producto => {
+      if (!producto) {
+        return res.redirect('/admin/productos');
+      }
+      Categoria.find()
+        .then(categorias => {
+          // console.log(categorias);
+          res.render('admin/editar-producto', {
+            titulo: 'Editar Producto',
+            path: '/admin/editar-producto',
+            producto: producto,
+            tienecaracteristicas: producto.caracteristicas != null ? true : false,
+            modoEdicion: true,
+            autenticado: req.session.autenticado,
+            categorias: categorias,
+            mensajeError: null,
+            tieneError: false,
+            erroresValidacion: []
+          });
+        })
+        .catch(err => {
+          const error = new Error(err);
+          error.httpStatusCode = 500;
+          return next(error);
+        });
+    })
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
 // Controlador para guardar los cambios del producto editado
@@ -138,7 +360,6 @@ exports.postEditProductos = async (req, res, next) => {
 
   const errors = validationResult(req);
 
-  console.log('aaaaaaaaaaaaaaaaa',imagen);
   // Actualiza el producto
   /*Producto.findById(productoId)
     .then(producto => {
@@ -238,3 +459,16 @@ exports.postEliminarProducto = async (req, res) => {
       return next(error);
     });
 };
+
+function actualizarOrdenCategorias() {
+  return Categoria.find()
+    .sort({ orden: 1 }) // Ordenar categorías por el campo 'orden'
+    .then(categorias => {
+      // Aquí podrías actualizar un archivo de navegación o una caché si es necesario
+      console.log('Categorías reordenadas para la navegación:', categorias.map(c => c.categoria));
+    })
+    .catch(err => {
+      console.error('Error actualizando el orden de las categorías:', err);
+      throw err;
+    });
+}

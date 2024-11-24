@@ -20,6 +20,7 @@ const multer = require('multer');
 
 
 //from project
+const Categoria = require('./models/categoria');
 const usuarioRouter = require('./routes/usuario')
 const ecommerceRouter = require('./routes/ecommerce')
 const adminRouter = require('./routes/admin');
@@ -106,6 +107,19 @@ app.use((req, res, next) => {
   res.locals.autenticado = req.session.autenticado;
   res.locals.csrfToken = req.csrfToken();
   next();
+});
+
+// esto es para tener categorias en todas las vitas 
+app.use((req, res, next) => {
+  Categoria.find()
+    .then(categorias => {
+      res.locals.categorias = categorias; 
+      next();
+    })
+    .catch(err => {
+      console.log('Error al obtener las categorías', err);
+      next();
+    });
 });
 
 app.use('/admin', adminRouter);

@@ -23,6 +23,7 @@ const multer = require('multer');
 const usuarioRouter = require('./routes/usuario')
 const ecommerceRouter = require('./routes/ecommerce')
 const adminRouter = require('./routes/admin');
+const empresaRouter = require('./routes/empresa');
 const Usuario = require('./models/usuario');
 const errorController = require('./controllers/error')
 
@@ -109,6 +110,7 @@ app.use((req, res, next) => {
 
 app.use('/admin', adminRouter);
 app.use('/usuario', usuarioRouter)
+app.use('/', empresaRouter);
 app.use(ecommerceRouter);
 
 app.get('/500', errorController.get500);

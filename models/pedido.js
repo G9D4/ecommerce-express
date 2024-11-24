@@ -4,16 +4,33 @@ const Schema = mongoose.Schema;
 const pedidoSchema = new Schema({
   productos: [
     {
-      idProducto: { type: Schema.Types.ObjectId, required: true, ref: 'Producto' },
+      producto: { type: Object, required: true },
       cantidad: { type: Number, required: true }
     }
   ],
-  idUsuario: {
-    type: Schema.Types.ObjectId,
-    required: true,
-    ref: 'Usuario'
+  usuario: {
+    nombres: {
+      type: String,
+      required: true
+    },
+    apellidos: {
+      type: String,
+      required: true
+    },
+    email: {
+      type: String,
+      required: true
+    },
+    idUsuario: {
+      type: Schema.Types.ObjectId,
+      required: true,
+      ref: 'Usuario'
+    }
+  },
+  fecha: {
+    type: Date,
+    default: Date.now
   }
-
 });
 
 module.exports = mongoose.model('Pedido', pedidoSchema);

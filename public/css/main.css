@@ -159,7 +159,7 @@ main {
 .btn2 {
   font: inherit;
   padding: 10px;
-  background: #2189FF;
+  background: #000000;
   color: white;
   border: none;
   border-radius: 23px;
@@ -168,7 +168,7 @@ main {
 
 .btn2:hover,
 .btn2:active {
-  background-color: #00695c;
+  background-color: #ffffff;
   color: white;
 }
 
@@ -176,7 +176,7 @@ main {
 .user-message {
   margin: auto;
   width: 90%;
-  border: 1px solid #4771fa;
+  border: 1px solid #ffffff;
   padding: 0.5rem;
   border-radius: 3px;
   background: #b9c9ff;
@@ -378,6 +378,55 @@ main {
 
 .view-cart:hover {
   background-color: #e9ecef;
+}
+
+/* carrito */
+
+.total-container {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.total-container h2 {
+  margin: 0;
+  padding: 0;
+}
+
+.quantity-input {
+  width: 50px;
+  text-align: center;
+  margin-right: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 5px;
+}
+
+/* paginacion */
+.pagination {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.pagination a {
+  text-decoration: none;
+  color: #4771fa;
+  padding: 0.5rem;
+  border: 1px solid #4771fa;
+  margin: 0 1rem;
+}
+
+.pagination a.active{
+  background: #4771fa;
+  color: white;
+}
+
+.pagination a:hover,
+.pagination a:active {
+  background: #4771fa;
+  color: white;
 }
 
 /* BREADCRUMBS */

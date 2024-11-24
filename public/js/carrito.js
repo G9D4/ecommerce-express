@@ -26,5 +26,9 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             total > 0 ? cartTotalPrice.textContent = `Total: S/. ${total.toFixed(2)}` : cartTotalPrice.textContent = "Su carrito está vacío";
         })
-        .catch(err => console.error('Error fetching cart items:', err));
+        .catch(err => {
+            const error = new Error(err);
+            error.httpStatusCode = 500;
+            return next(error);
+        });
 });

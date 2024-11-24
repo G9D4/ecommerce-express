@@ -3,48 +3,98 @@ const { ObjectId } = require("mongodb");
 const Producto = require("../models/producto");
 const Categoria = require("../models/categoria");
 const Pedido = require("../models/pedido");
+const ITEMS_PER_PAGE = 5;
 
-exports.getHome = async (req, res) => {
-  const categoria_ruta = req.params.categoria_ruta ? req.params.categoria_ruta : null;
-  const categorias = await Categoria.find().then(categorias => { return categorias });
-  const categoria_id = categoria_ruta ? categorias.find(x => x.ruta == categoria_ruta) : null;
+const fs = require('fs');
+const path = require('path');
+const PDFDocument = require('pdfkit');
 
-  Producto.find(categoria_id ? { categoria_id: categoria_id } : {}).populate('categoria_id')
-    .then(productos => {
-      productos.forEach(producto => { producto.categoria = producto.categoria_id.categoria })
+exports.getHome = (req, res, next) => {
+  const categoria_ruta = req.params.categoria_ruta || null;
+  const page = parseInt(req.query.page) || 1;
 
-      res.render('tienda/home', {
+  Categoria.find()
+    .then(categorias => {
+      const categoriaSeleccionada = categoria_ruta
+        ? categorias.find(cat => cat.ruta === categoria_ruta)
+        : null;
+
+      const filtro = categoriaSeleccionada
+        ? { categoria_id: categoriaSeleccionada._id }
+        : {};
+
+      return Promise.all([
+        Producto.find(filtro).countDocuments(), // Total de documentos
+        Producto.find(filtro) // Productos filtrados
+          .skip((page - 1) * ITEMS_PER_PAGE)
+          .limit(ITEMS_PER_PAGE)
+          .populate('categoria_id'),
+        categorias,
+      ]);
+    })
+    .then(([documentCount, productos, categorias]) => {
+      const categoria_id = categoria_ruta ? categorias.find(x => x.ruta == categoria_ruta) : null;
+      const titulo = categoria_ruta
+        ? `${categorias.find(cat => cat.ruta === categoria_ruta)?.categoria || 'No encontrada'}`
+        : 'Página principal de la Tienda';
+
+      res.render(categoria_ruta ? 'tienda/index' : 'tienda/home', {
         prods: productos,
-        titulo: "Home",
-        path: '/',
-        autenticado: req.session.autenticado
+        prodsLength: documentCount,
+        categorias: categorias,
+        titulo: titulo,
+        path: `/${categoria_ruta || ''}`,
+        autenticado: req.session.autenticado,
+        page: page,
+        lastPage: Math.ceil(documentCount / ITEMS_PER_PAGE),
+        sortBy: 'position',
+        thirdBreadcrumb: false,
+        categoriaRuta: categoria_ruta,
+        categoria: `${categoria_id.categoria}`,
       });
     })
-    .catch(err => console.log(err));
-
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
-exports.getProductos = async (req, res) => {
+
+exports.getProductos = (req, res, next) => {
   const categoria_ruta = req.params.categoria_ruta ? req.params.categoria_ruta : null;
-  const categorias = await Categoria.find().then(categorias => { return categorias });
-  const categoria_id = categoria_ruta ? categorias.find(x => x.ruta == categoria_ruta) : null;
+  Categoria.find().then(categorias => {
+    const categoria_id = categoria_ruta ? categorias.find(x => x.ruta == categoria_ruta) : null;
 
-  Producto.find(categoria_id ? { categoria_id: categoria_id } : {}).populate('categoria_id')
-    .then(productos => {
-      productos.forEach(producto => { producto.categoria = producto.categoria_id.categoria })
-      res.render('tienda/index', {
-        prods: productos,
-        titulo: `${categoria_id.categoria}`,
-        categoria: `${categoria_id.categoria}`,
-        categoriaRuta: categoria_ruta,
-        sortBy: 'position',
-        path: `/${categoria_ruta || ""}`,
-        thirdBreadcrumb: false,
-        autenticado: req.session.autenticado,
+    // Filtra si hay una categoría seleccionada
+    Producto.find(categoria_id ? { categoria_id: categoria_id } : {})
+      .populate('categoria_id')
+      .then(productos => {
+        productos.forEach(producto => {
+          producto.categoria = producto.categoria_id.categoria
+        });
+        res.render('tienda/index', {
+          prods: productos,
+          titulo: `${categoria_id.categoria}`,
+          categoria: `${categoria_id.categoria}`,
+          categoriaRuta: categoria_ruta,
+          sortBy: 'position',
+          path: `/${categoria_ruta || ""}`,
+          thirdBreadcrumb: false,
+          autenticado: req.session.autenticado,
+        });
+      })
+      .catch(err => {
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
       });
-    })
-    .catch(err => console.log(err));
-
+  })
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
 exports.getProductosSorted = async (req, res) => {
@@ -79,7 +129,6 @@ exports.getProductosSorted = async (req, res) => {
 };
 
 exports.getCarrito = async (req, res, next) => {
-
   req.usuario
     .populate('carrito.productos.idProducto')
     .then(usuario => {
@@ -93,25 +142,41 @@ exports.getCarrito = async (req, res, next) => {
         autenticado: req.session.autenticado
       });
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 
 };
 
-exports.postCarrito = async (req, res) => {
-
+exports.postCarrito = (req, res, next) => {
   const idProducto = req.body.idProducto;
-  const producto = await Producto.findById(idProducto);
-  const cantidad = req.body.quantity != '' ? Number(req.body.quantity) : null;
+  const cantidad = req.body.quantity && req.body.quantity.trim() !== '' ? Number(req.body.quantity) : null;
 
-  Producto.findById(producto._id)
+  if (cantidad != null && cantidad <= 0) {
+    req.flash('error', 'Cantidad inválida');
+    return res.redirect('/carrito');
+  }
+
+  Producto.findById(idProducto)
     .then(producto => {
+      if (!producto) {
+        req.flash('error', 'Producto no encontrado');
+        return res.redirect('/carrito');
+      }
       return req.usuario.agregarAlCarrito(producto, cantidad);
     })
-    .then(result => {
+    .then(() => {
       res.redirect('/carrito');
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
+
 
 exports.postEliminarProductoCarrito = async (req, res) => {
 
@@ -120,13 +185,17 @@ exports.postEliminarProductoCarrito = async (req, res) => {
     .then(result => {
       res.redirect('/carrito');
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
 exports.getProducto = (req, res) => {
   const idProducto = req.params.idProducto;
   Producto.findById(idProducto).then((producto) => {
-    Categoria.findById(producto.categoria_id).then ((p) => {
+    Categoria.findById(producto.categoria_id).then((p) => {
       res.render("tienda/detalle-producto", {
         producto: producto,
         titulo: producto.nombreproducto,
@@ -139,12 +208,10 @@ exports.getProducto = (req, res) => {
   });
 };
 
-exports.getPedidos = async (req, res, next) => {
-
-  Pedido.find({ 'idUsuario': req.usuario._id }).populate('productos.idProducto')
+exports.getPedidos = (req, res, next) => {
+  req.usuario
+  Pedido.find({ 'usuario.idUsuario': req.usuario._id })
     .then(pedidos => {
-      pedidos.forEach(x => x.productos.forEach(y => { y.nombreproducto = y.idProducto.nombreproducto }))
-
       res.render('tienda/pedidos', {
         path: '/pedidos',
         titulo: 'Mis Pedidos',
@@ -152,20 +219,31 @@ exports.getPedidos = async (req, res, next) => {
         autenticado: req.session.autenticado
       });
     })
-    .catch(err => console.log(err));
-
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
-exports.postPedido = async (req, res, next) => {
+exports.postPedido = (req, res, next) => {
   req.usuario
     .populate('carrito.productos.idProducto')
     .then(usuario => {
       const productos = usuario.carrito.productos.map(i => {
-
-        return { cantidad: i.cantidad, idProducto: new ObjectId(i.idProducto._doc._id) };
+        return {
+          cantidad: i.cantidad,
+          producto: { ...i.idProducto._doc }
+        };
       });
       const pedido = new Pedido({
-        idUsuario: new ObjectId(req.usuario._id),
+        usuario: {
+          nombres: req.usuario.nombres,
+          apellidos: req.usuario.apellidos,
+          email: req.usuario.email,
+          // telefono: req.usuario.telefono
+          idUsuario: req.usuario
+        },
         productos: productos
       });
       return pedido.save();
@@ -176,7 +254,11 @@ exports.postPedido = async (req, res, next) => {
     .then(() => {
       res.redirect('/pedidos');
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
 exports.getCarritoDesplegable = (req, res, next) => {
@@ -203,7 +285,128 @@ exports.getCarritoDesplegable = (req, res, next) => {
       });
     })
     .catch(err => {
-      console.error(err);
-      res.status(500).json({ error: 'Error al obtener el carrito' });
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
+};
+
+exports.modificarCantidadCarrito = (req, res, next) => {
+  const idProducto = req.body.idProducto;
+  const nuevaCantidad = parseInt(req.body.nuevaCantidad, 10);
+
+  if (isNaN(nuevaCantidad) || nuevaCantidad < 0) {
+    req.flash('error', 'Cantidad inválida');
+    return res.redirect('/carrito');
+  }
+
+  Producto.findById(idProducto)
+    .then(producto => {
+      if (!producto) {
+        req.flash('error', 'Producto no encontrado en el carrito');
+        return res.redirect('/carrito');
+      }
+
+      if (nuevaCantidad === 0) {
+        return req.usuario.deleteProductoDelCarrito(idProducto);
+      }
+
+      return req.usuario.actualizarAlCarrito(producto, nuevaCantidad);
+    })
+    .then(() => {
+      res.redirect('/carrito');
+    })
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
+};
+
+exports.getComprobante = (req, res, next) => {
+  const idPedido = req.params.idPedido;
+
+  Pedido.findById(idPedido)
+    .populate('productos.producto') // Asegura que los datos de los productos estén disponibles
+    .then(pedido => {
+      if (!pedido) {
+        return next(new Error('No se encontró el pedido'));
+      }
+
+      if (pedido.usuario.idUsuario.toString() !== req.usuario._id.toString()) {
+        return next(new Error('No autorizado'));
+      }
+
+      const nombreComprobante = `comprobante-${idPedido}.pdf`;
+      const rutaComprobante = path.join('data', 'comprobantes', nombreComprobante);
+      const pdfDoc = new PDFDocument({ margin: 50 });
+
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename="${nombreComprobante}"`
+      );
+
+      pdfDoc.pipe(fs.createWriteStream(rutaComprobante));
+      pdfDoc.pipe(res);
+
+      // Encabezado con logotipo
+      const logoPath = path.join('public', 'imagencomprobante', 'logo.jpeg');
+      if (fs.existsSync(logoPath)) {
+        pdfDoc.image(logoPath, 50, 40, { width: 100 });
+      }
+      pdfDoc
+        .fontSize(20)
+        .text('Comprobante de Pedido', 150, 50, { align: 'center' })
+        .moveDown();
+
+      // Información del comprador
+      pdfDoc
+        .fontSize(12)
+        .text(`Nombre: ${pedido.usuario.nombres} ${req.usuario.apellidos}`)
+        .text(`Correo: ${pedido.usuario.email}`)
+        .text(`Fecha: ${new Date(pedido.fecha).toLocaleDateString()}`)
+        .moveDown();
+
+      // Detalles del pedido
+      pdfDoc.fontSize(14).text('Detalles del Pedido:').moveDown();
+
+      let precioTotal = 0;
+
+      pedido.productos.forEach(prod => {
+        const subTotal = prod.cantidad * prod.producto.precio;
+        precioTotal += subTotal;
+
+        pdfDoc
+          .fontSize(12)
+          .text(
+            `${prod.producto.nombreproducto} - ${prod.cantidad} x S/ ${prod.producto.precio.toFixed(
+              2
+            )} = S/ ${subTotal.toFixed(2)}`
+          );
+      });
+
+      pdfDoc
+        .fontSize(14)
+        .text('---------------------------------------')
+        .fontSize(16)
+        .text(`Precio Total: S/ ${precioTotal.toFixed(2)}`, { align: 'right' })
+        .moveDown();
+
+      // Pie de página
+      pdfDoc
+        .fontSize(10)
+        .text(
+          'Gracias por su compra. Por favor, conserve este comprobante para futuras referencias.',
+          { align: 'center' }
+        )
+        .moveDown();
+
+      pdfDoc.end();
+    })
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
     });
 };

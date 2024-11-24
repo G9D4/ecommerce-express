@@ -14,10 +14,10 @@
                         <h2><%= titulo %></h2>
                         <div>
                             <p>
-                                <% if (prods.length > 1) { %>
-                                    <%= prods.length %> artículos
+                                <% if (prodsLength > 1) { %>
+                                    <%= prodsLength %> artículos
                                 <% } else { %>
-                                    <%= prods.length %> artículo
+                                    <%= prodsLength %> artículo
                                 <% } %>
                             </p>
                             <div>
@@ -38,7 +38,7 @@
                             <article class="card product-item">
                                 <div class="card__image">
                                     <a href="/productos/<%= producto._id %>">
-                                        <img src="<%= producto.urlImagen %>" alt="<%= producto.nombreproducto %>">
+                                        <img src="/<%= producto.urlImagen %>" alt="<%= producto.nombreproducto %>">
                                     </a>
                                 </div>
                                 <header class="card__header">
@@ -57,6 +57,7 @@
                             </article>
                         <% } %>
                     </div>
+                    <%- include('../includes/paginacion.ejs')%>
                 <% } else { %>
                     <h1>No hay productos</h1>
                 <% } %>

@@ -9,6 +9,11 @@
                     <h1>
                         <%= titulo %>
                     </h1>
+                    <% if (mensajeError) { %>
+                        <div class="user-message user-message--error">
+                            <%= mensajeError %>
+                        </div>
+                    <% } %>
                     <form
                         enctype="multipart/form-data" 
                         action="/admin/<% if (modoEdicion) { %>editar-producto<% } else { %>crear-producto<% } %>"
@@ -16,8 +21,12 @@
                         <!-- Nombre del producto -->
                         <div class="input-form">
                             <label for="nombreproducto">Nombre del producto</label>
-                            <input type="text" id="nombreproducto" name="nombreproducto"
-                                value="<% if (modoEdicion) { %><%= producto.nombreproducto %><% } %>" required>
+                            <input
+                                class="<%= erroresValidacion.find(e => e.path === 'nombreproducto') ? 'invalid inputText' : 'inputText' %>"
+                                type="text"
+                                id="nombreproducto"
+                                name="nombreproducto"
+                                value="<% if (modoEdicion || tieneError) { %><%= producto.nombreproducto %><% } %>" required>
                         </div>
                         <!--URL de la imagen
                         <div class="input-form">
@@ -35,35 +44,47 @@
                         <!-- Precio del producto -->
                         <div class="input-form">
                             <label for="precio">Precio</label>
-                            <input type="number" min="0" max="100000.00" step='0.01' id="precio" name="precio"
-                                value="<% if (modoEdicion) { %><%= producto.precio %><% } %>" required>
+                            <input
+                                class="<%= erroresValidacion.find(e => e.path === 'precio') ? 'invalid inputText' : 'inputText' %>"
+                                type="number"
+                                min="0" max="100000.00" step='0.01'
+                                id="precio"
+                                name="precio"
+                                value="<% if (modoEdicion || tieneError) { %><%= producto.precio %><% } %>" required>
                         </div>
 
                         <!-- Descripción del producto -->
                         <div class="input-form">
                             <label for="descripcion">Descripción</label>
-                            <textarea id="descripcion" name="descripcion"
-                                required><% if (modoEdicion) { %><%= producto.descripcion %><% } %></textarea>
+                            <textarea
+                                class="<%= erroresValidacion.find(e => e.path === 'descripcion') ? 'invalid inputText' : 'inputText' %>"
+                                id="descripcion"
+                                name="descripcion"
+                                required><% if (modoEdicion || tieneError) { %><%= producto.descripcion %><% } %></textarea>
                         </div>
 
                         <!-- Características del producto -->
 
                         <div class="input-form">
                             <label for="caracteristicas">Características principales</label>
-                            <textarea id="caracteristicas"
-                                name="caracteristicas"><% if (modoEdicion){%><% if (tienecaracteristicas){%><%= producto.caracteristicas.join(",") %><%}%><%}%></textarea>
+                            <textarea
+                                class="<%= erroresValidacion.find(e => e.path === 'caracteristicas') ? 'invalid inputText' : 'inputText' %>"
+                                id="caracteristicas"
+                                name="caracteristicas"><% if (modoEdicion || tieneError){%><% if (tienecaracteristicas){%><%= producto.caracteristicas.join(",") %><%}%><%}%></textarea>
                         </div>
 
                         <!-- Seleccionar categoría -->
                         <div class="input-form">
                             <label for="categoria">Categoría</label>
-                            <select id="categoria" name="categoria">
+                            <select
+                                id="categoria"
+                                name="categoria"
+                                class = "inputText">
                                 <% for (let c of categorias) { %>
-                                    <option value="<%=c._id%>" <% if (modoEdicion &&
-                                        producto.categoria_id.toString()==c._id.toString()) { %>selected<% } %>><%=
-                                                c.categoria %>
+                                    <option value="<%=c._id%>" <% if ((modoEdicion || tieneError) &&
+                                        producto.categoria_id.toString()==c._id.toString()) { %>selected<% } %>><%= c.categoria %>
                                     </option>
-                                    <% } %>
+                                <% } %>
 
                             </select>
                         </div>

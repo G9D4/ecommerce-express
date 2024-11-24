@@ -342,3 +342,27 @@ main {
 .view-cart:hover {
   background-color: #e9ecef;
 }
+
+.pagination {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.pagination a {
+  text-decoration: none;
+  color: #4771fa;
+  padding: 0.5rem;
+  border: 1px solid #4771fa;
+  margin: 0 1rem;
+}
+
+.pagination a.active{
+  background: #4771fa;
+  color: white;
+}
+
+.pagination a:hover,
+.pagination a:active {
+  background: #4771fa;
+  color: white;
+}

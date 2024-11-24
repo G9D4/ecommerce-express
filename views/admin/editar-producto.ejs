@@ -14,7 +14,9 @@
                             <%= mensajeError %>
                         </div>
                     <% } %>
-                    <form action="/admin/<% if (modoEdicion) { %>editar-producto<% } else { %>crear-producto<% } %>"
+                    <form
+                        enctype="multipart/form-data" 
+                        action="/admin/<% if (modoEdicion) { %>editar-producto<% } else { %>crear-producto<% } %>"
                         method="POST" class="form-control">
                         <!-- Nombre del producto -->
                         <div class="input-form">
@@ -26,18 +28,21 @@
                                 name="nombreproducto"
                                 value="<% if (modoEdicion || tieneError) { %><%= producto.nombreproducto %><% } %>" required>
                         </div>
-
-                        <!-- URL de la imagen -->
+                        <!--URL de la imagen
                         <div class="input-form">
                             <label for="urlImagen">URL de la imagen</label>
-                            <input
-                                class="<%= erroresValidacion.find(e => e.path === 'urlImagen') ? 'invalid inputText' : 'inputText' %>"
-                                type="text"
-                                id="urlImagen"
-                                name="urlImagen"
-                                value="<% if (modoEdicion || tieneError) { %><%= producto.urlImagen %><% } %>">
+                            <input type="text" id="urlImagen" name="urlImagen"
+                                value="<% if (modoEdicion) { %><%= producto.urlImagen %><% } %>">
+                        </div>-->
+                        <div class="form-control">
+                            <label for="imagen">Imagen</label>
+                            <input  
+                                type="file"
+                                name="imagen"
+                                id="imagen"
+                                
+                                src="<% if (modoEdicion || tieneError) { %>/<%= producto.urlImagen %><% } %>">
                         </div>
-
                         <!-- Precio del producto -->
                         <div class="input-form">
                             <label for="precio">Precio</label>
@@ -103,7 +108,7 @@
                     <!-- Vista previa de la imagen -->
                     <div class="image-preview">
                         <img id="previewImage"
-                            src="<% if (modoEdicion) { %><%= producto.urlImagen %><% } else { %>https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQVNer1ZryNxWVXojlY9Hoyy1-4DVNAmn7lrg&s<% } %>"
+                            src="<% if (modoEdicion) { %>/<%= producto.urlImagen %><% } else { %>https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQVNer1ZryNxWVXojlY9Hoyy1-4DVNAmn7lrg&s<% } %>"
                             alt="Vista previa" />
                     </div>
                 </aside>
@@ -112,13 +117,42 @@
             <%- include('../includes/end.ejs') %>
 
                 <script>
-                    // Mostrar vista previa de la imagen cuando se ingresa la URL
+                    /*// Mostrar vista previa de la imagen cuando se ingresa la URL
                     const urlImagenInput = document.getElementById('urlImagen');
                     const previewImage = document.getElementById('previewImage');
 
                     urlImagenInput.addEventListener('input', function () {
                         const imageUrl = urlImagenInput.value;
                         previewImage.src = imageUrl ? imageUrl : '';
+                    });*/
+                    // Mostrar vista previa de la imagen cuando se ingresa la URL
+                    const urlImagenInput = document.getElementById('urlImagen');
+                    const archivoImagenInput = document.getElementById('imagen'); // Input tipo file
+                    const previewImage = document.getElementById('previewImage');
+
+                    // Vista previa cuando se ingresa una URL
+                    if (urlImagenInput) {
+                        urlImagenInput.addEventListener('input', function () {
+                            const imageUrl = urlImagenInput.value;
+                            previewImage.src = imageUrl ? imageUrl : '';
+                        });
+                    }
+
+                    // Vista previa cuando se selecciona un archivo
+                    archivoImagenInput.addEventListener('change', function () {
+                        const archivo = archivoImagenInput.files[0];
+                        if (archivo) {
+                                                        
+                            const imageUrl = URL.createObjectURL(archivo); // Crear una URL temporal para el archivo seleccionado
+                            previewImage.src = imageUrl;
+
+                            previewImage.onload = () => {
+                                URL.revokeObjectURL(imageUrl); // Limpia la URL temporal después de que la imagen se haya cargado
+                            };
+                        } else {
+                            previewImage.src = ''; //Limpia vista previa si no se selecciona archivo
+                        }
                     });
+                    
                 </script>
     </body>

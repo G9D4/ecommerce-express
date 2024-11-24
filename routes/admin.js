@@ -52,8 +52,8 @@ router.post('/editar-producto',
             .trim()
             .isString()
             .isLength({ min: 3 }),
-        body('urlImagen', 'Ingrese un URL válido')
-            .isURL(),
+        // body('urlImagen', 'Ingrese un URL válido')
+            // .isURL(),
         body('precio', 'El precio debe ser un número')
             .isFloat(),
         body('descripcion', 'La descripción debe ser un texto de entre 10 a 400 caracteres')

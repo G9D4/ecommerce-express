@@ -134,7 +134,6 @@ exports.getProductos = (req, res, next) => {
     });
 };
 
-
 exports.getCategorias = (req, res, next) => {
   const editMode = req.query.edit;
   let categoria = null;

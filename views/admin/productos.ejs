@@ -79,7 +79,18 @@
                     </article>
                 <% } %>
             </div>
-            <%- include('../includes/paginacion.ejs') %>
+            <section class="pagination">
+                <% if (lastPage > 1) { %>
+                    <div class="paginacion">
+                        <% for (let i = 1; i <= lastPage; i++) { %>
+                            <a href="?page=<%= i %>&categoria=<%= categoriaSeleccionada %>&creador=<%= creadorSeleccionado %>" 
+                               class="<%= i === page ? 'active' : '' %>">
+                                <%= i %>
+                            </a>
+                        <% } %>
+                    </div>
+                <% } %>
+            </section>            
         <% } else { %>
             <h1>No hay productos</h1>
         <% } %>

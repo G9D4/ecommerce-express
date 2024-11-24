@@ -19,6 +19,7 @@ const csrf = require('csurf');
 const usuarioRouter = require('./routes/usuario')
 const ecommerceRouter = require('./routes/ecommerce')
 const adminRouter = require('./routes/admin');
+const empresaRouter = require('./routes/empresa');
 const Usuario = require('./models/usuario');
 
 
@@ -68,8 +69,8 @@ app.use((req, res, next) => {
 
 app.use('/admin', adminRouter);
 app.use('/usuario', usuarioRouter)
+app.use(empresaRouter);
 app.use(ecommerceRouter);
-
 
 app.use((req, res, next) => {
   res.status(404).sendFile(path.join(raizDir, 'views', '404.ejs'));

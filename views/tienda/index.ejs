@@ -20,17 +20,6 @@
                                     <%= prodsLength %> artículo
                                 <% } %>
                             </p>
-                            <div>
-                                <span>Ordenar por</span>
-                                <form id="formOrder" action="/categoria/<%= categoriaRuta %>?" method="GET">
-                                    <select name="productOrder" id="productOrder">
-                                        <option value="position" <% if (sortBy === 'position') { %>selected<% } %>>Posición</option>
-                                        <option value="low-price" <% if (sortBy === 'low-price') { %>selected<% } %>>Menor precio</option>
-                                        <option value="high-price" <% if (sortBy === 'high-price') { %>selected<% } %>>Mayor precio</option>
-                                        <option value="name" <% if (sortBy === 'name') { %>selected<% } %>>Nombre</option>
-                                    </select>
-                                </form>
-                            </div>
                         </div>
                     </div>
                     <div class="grid">

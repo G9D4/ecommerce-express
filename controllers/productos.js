@@ -38,6 +38,26 @@ exports.getHome = (req, res, next) => {
         ? `${categorias.find(cat => cat.ruta === categoria_ruta)?.categoria || 'No encontrada'}`
         : 'Página principal de la Tienda';
 
+      // res.render(
+      //   if (categoria_ruta) {
+      //     return 'tienda/index',{
+      //         prods: productos,
+      //         prodsLength: documentCount,
+      //         categorias: categorias,
+      //         titulo: titulo,
+      //         path: `/${categoria_ruta || ''}`,
+      //         autenticado: req.session.autenticado,
+      //         page: page,
+      //         lastPage: Math.ceil(documentCount / ITEMS_PER_PAGE),
+      //         sortBy: 'position',
+      //         thirdBreadcrumb: false,
+      //         categoriaRuta: categoria_ruta,
+      //         categoria: `${categoria_id.categoria}`,
+      //       }
+      //   }
+      // );
+
+
       res.render(categoria_ruta ? 'tienda/index' : 'tienda/home', {
         prods: productos,
         prodsLength: documentCount,
@@ -50,7 +70,7 @@ exports.getHome = (req, res, next) => {
         sortBy: 'position',
         thirdBreadcrumb: false,
         categoriaRuta: categoria_ruta,
-        categoria: `${categoria_id.categoria}`,
+        categoria: categoria_ruta ? categoria_id.categoria : '',
       });
     })
     .catch(err => {

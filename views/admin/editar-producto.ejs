@@ -75,7 +75,7 @@
                                     <label for="categoria">Categoría</label>
                                     <select id="categoria" name="categoria" class="inputText">
                                         <% for (let c of categorias) { %>
-                                            <% if (producto.categoria_id && producto.categoria_id.categoria) { %>
+                                            <% if (modoEdicion && producto.categoria_id && producto.categoria_id.categoria) { %>
                                                 <option value="<%=c._id%>" <% if ((modoEdicion || tieneError) &&
                                                     producto.categoria_id.toString()==c._id.toString()) { %>selected<% }
                                                         %>><%= c.categoria %>

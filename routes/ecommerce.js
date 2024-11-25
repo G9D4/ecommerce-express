@@ -9,8 +9,13 @@ router.get('/carrito', isAuth, productosController.getCarrito);
 router.post('/carrito', isAuth, productosController.postCarrito)
 router.get('/api/carrito',isAuth, productosController.getCarritoDesplegable); // info para el carrito
 router.post('/eliminar-producto-carrito', isAuth, productosController.postEliminarProductoCarrito);
+// router.get('/categoria/:categoria_ruta?', isAuth, productosController.getProductosSorted);
+// router.get('/categoria/:categoria_ruta', isAuth, productosController.getProductos);
+router.get('/', isAuth, productosController.getHome);
 router.post('/modificar-cantidad-carrito', isAuth, productosController.modificarCantidadCarrito);
 
+// POR QUE LA RUTA DE CATEGORIA LLAMA AL HOME????
+// KEEEEEE??????????????????????????
 router.get('/categoria/:categoria_ruta', productosController.getHome);
 router.get('/', productosController.getHome);
 router.get('/productos/:idProducto', productosController.getProducto);

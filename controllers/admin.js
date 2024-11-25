@@ -2,9 +2,36 @@ const { ObjectId } = require("mongodb");
 const Usuario = require('../models/usuario');
 const Producto = require("../models/producto");
 const Categoria = require("../models/categoria");
+const Pedido = require("../models/pedido");
 const { validationResult } = require("express-validator");
 
 const ITEMS_POR_PAGINA = 6;
+
+
+exports.getAdminDashboard = async (req, res, next) => {
+  try {
+    const categoria = await Categoria.find().then(categorias => { return categorias })
+    const producto = await Producto.find().then(producto => { return producto })
+    const usuario = await Usuario.find().then(usuario => { return usuario })
+    const pedido = await Pedido.find().then(pedido => { return pedido })
+  
+    const cluster = categoria.concat(producto, usuario, pedido);
+    const orderedCluster = cluster.sort((a, b) => new Date(a._id.getTimestamp()) - new Date(b._id.getTimestamp())).reverse();
+    const topCluster = orderedCluster.slice(0, 16)
+
+    res.render("admin/admin-dashboard", {
+      titulo: "Dashboard",
+      path: "/admin/dashboard",
+      categoriaLength: categoria.length,
+      productoLength: producto.length,
+      usuarioLength: usuario.length,
+      pedidoLength: pedido.length,
+      latestActivity: topCluster,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 exports.getCrearProducto = (req, res, next) => {
   Categoria
@@ -118,7 +145,8 @@ exports.getProductos = (req, res, next) => {
                 page: page,
                 lastPage: Math.ceil(nroProductos / ITEMS_POR_PAGINA),
                 categoriaSeleccionada: categoriaId, // Pasar la categoría seleccionada al front-end
-                creadorSeleccionado: creadorId // Pasar el creador seleccionado al front-end
+                creadorSeleccionado: creadorId, // Pasar el creador seleccionado al front-end
+                sortBy: 'position',
               });
             })
             .catch(err => {
@@ -138,6 +166,31 @@ exports.getProductos = (req, res, next) => {
       error.httpStatusCode = 500;
       return next(error);
     });
+};
+
+exports.getProductosSorted = async (req, res, next) => {
+  const sortBy = req.query.productOrder
+  try {
+    const productos = await Producto.find().populate('categoria_id').then(productos => { return productos })
+    productos.forEach(producto => { producto.categoria = producto.categoria_id.categoria })
+
+    if (sortBy === 'low-price') {
+      productos.sort((a, b) => a.precio - b.precio);
+    } else if (sortBy === 'high-price') {
+      productos.sort((a, b) => b.precio - a.precio);
+    } else if (sortBy === 'name') {
+      productos.sort((a, b) => a.nombreproducto.localeCompare(b.nombreproducto));
+    }
+
+    res.render("admin/productos", {
+      prods: productos,
+      titulo: "Administracion de Productos",
+      path: "/admin/productos",
+      sortBy: sortBy,
+    });
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 exports.getCategorias = (req, res, next) => {
@@ -367,7 +420,7 @@ exports.postEditProductos = async (req, res, next) => {
         console.log('Usuario no autorizado');
         // Si el producto no es del usuario, no permite actualizar
         return res.redirect('/');
-    } 
+      }
       producto.nombreproducto = nombreproducto;
       producto.precio = precio;
       producto.descripcion = descripcion;
@@ -448,7 +501,7 @@ exports.postEditProductos = async (req, res, next) => {
 
 exports.postEliminarProducto = async (req, res) => {
   const idProducto = req.body.idProducto;
-  Producto.deleteOne({_id: idProducto, idUsuario: req.usuario._id})
+  Producto.deleteOne({ _id: idProducto, idUsuario: req.usuario._id })
     .then(result => {
       console.log('Producto eliminado satisfactoriamente');
       res.redirect('/admin/productos');

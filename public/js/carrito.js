@@ -9,15 +9,22 @@ document.addEventListener('DOMContentLoaded', () => {
             cartDropdown.innerHTML = ''; // Limpiar la lista antes de agregar productos
             let total = 0;
             data.productos.forEach(producto => {
-                const li = document.createElement('li');
-                li.innerHTML = `
-                    <span>${producto.nombreproducto} (x${producto.cantidad})</span>
-                    <span>${producto.precio * producto.cantidad}</span>
+                const productCard = document.createElement('a');
+                productCard.href = `/productos/${producto.id}`
+                productCard.innerHTML = `
+                    <p>
+                        <span class="cart-item_nombre">${producto.nombreproducto}</span>
+                        <span class="cart-item_precio">S/. ${producto.precio * producto.cantidad}</span>
+                        <span class="cart-item_cantidad">Cantidad: ${producto.cantidad}</span>
+                    </p>
+                    <div class="dropdown-image">
+                        <img src="${producto.imagen ? producto.imagen : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQVNer1ZryNxWVXojlY9Hoyy1-4DVNAmn7lrg&s"}" alt="${producto.nombreproducto}">
+                    </div>
                 `;
-                cartDropdown.appendChild(li);
+                cartDropdown.appendChild(productCard);
                 total += producto.precio * producto.cantidad;
             });
-            cartTotalPrice.textContent = total.toFixed(2); // Mostrar el total
+            total > 0 ? cartTotalPrice.textContent = `Total: S/. ${total.toFixed(2)}` : cartTotalPrice.textContent = "Su carrito está vacío";
         })
         .catch(err => {
             const error = new Error(err);

@@ -6,7 +6,10 @@ const router = express.Router();
 const adminController = require('../controllers/admin')
 const isAuth = require('../middleware/is-auth');
 
+router.get('/admin-dashboard', isAuth, adminController.getAdminDashboard);
 router.get('/crear-producto', isAuth, adminController.getCrearProducto);
+
+// router.get('/productos?', isAuth, adminController.getProductosSorted);
 router.get('/productos', isAuth, adminController.getProductos);
 
 
@@ -31,6 +34,8 @@ router.post('/crear-producto',
             .trim()
             .isString()
             .isLength({ min: 3 }),
+            // BORRAR COMPROBACION
+            // PARFAVAAAAAAAAAAAAAAR
         body('urlImagen', 'Ingrese un URL válido')
             .isURL(),
         body('precio', 'El precio debe ser un número')

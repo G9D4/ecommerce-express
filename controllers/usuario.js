@@ -26,49 +26,53 @@ exports.getLogin = async (req, res, next) => {
     path: "/",
     mensajeError: mensaje,
     datosAnteriores: {
-        email: '',
-        password: ''
+      email: '',
+      password: ''
     },
     erroresValidacion: []
   });
 };
 
 exports.postLogin = async (req, res, next) => {
-    const { email, password } = req.body;
+  const { email, password } = req.body;
 
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(422).render('login-usuario', {
-            path: '/usuario',
-            titulo: 'Ingreso de usuario',
-            mensajeError: errors.array()[0].msg,
-            datosAnteriores: {
-                email: email,
-                password: password
-            },
-            erroresValidacion: errors.array()
-        });
-    }
-    
-    Usuario.findOne({ email: email })
-        .then(usuario => {
-        bcrypt.compare(password, usuario.password)
-            .then(hayCoincidencia => {
-            if (hayCoincidencia) {
-                req.session.autenticado = true;
-                req.session.usuario = usuario;
-                return req.session.save(err => {
-                console.log(err);
-                res.redirect('/')
-                })
-            }
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(422).render('login-usuario', {
+      path: '/usuario',
+      titulo: 'Ingreso de usuario',
+      mensajeError: errors.array()[0].msg,
+      datosAnteriores: {
+        email: email,
+        password: password
+      },
+      erroresValidacion: errors.array()
+    });
+  }
+
+  Usuario.findOne({ email: email })
+    .then(usuario => {
+      bcrypt.compare(password, usuario.password)
+        .then(hayCoincidencia => {
+          if (hayCoincidencia) {
+            req.session.autenticado = true;
+            req.session.usuario = usuario;
+            return req.session.save(err => {
+              console.log(err);
+              if (req.session.usuario.isadmin == 1) {
+                res.redirect('/admin/admin-dashboard');
+              } else {
+                res.redirect('/');
+              }
             })
-            .catch(err => {
-              const error = new Error(err);
-              error.httpStatusCode = 500;
-              return next(error);
-            });
+          }
         })
+        .catch(err => {
+          const error = new Error(err);
+          error.httpStatusCode = 500;
+          return next(error);
+        });
+    })
 };
 
 exports.postLogout = async (req, res, next) => {
@@ -84,7 +88,7 @@ exports.getSignup = async (req, res, next) => {
   res.render("signup-usuario", {
     titulo: "Creación de nueva cuenta",
     mensajeError: mensaje,
-    erroresValidacion : [],
+    erroresValidacion: [],
     datosAnteriores: {
       nombres: '',
       apellidos: '',
@@ -119,24 +123,24 @@ exports.postSignup = async (req, res, next) => {
 
   bcrypt.hash(password, 12)
     .then(passwordCifrado => {
-        const usuario = new Usuario({
+      const usuario = new Usuario({
         nombres: nombres,
         apellidos: apellidos,
         email: email,
         password: passwordCifrado,
         isadmin: 0,
         carrito: { productos: [] }
-        });
-        return usuario.save();
+      });
+      return usuario.save();
     })
     .then(result => {
-        res.redirect('/usuario/login');
-        return transporter.sendMail({
-          to: email,
-          from: 'proyectosamsungpucp@gmail.com',
-          subject: 'Registro exitoso',
-          html: '<h1>Ha sido registrado exitosamente en proyecto Samsung</h1>'
-        })
+      res.redirect('/usuario/login');
+      return transporter.sendMail({
+        to: email,
+        from: 'proyectosamsungpucp@gmail.com',
+        subject: 'Registro exitoso',
+        html: '<h1>Ha sido registrado exitosamente en proyecto Samsung</h1>'
+      })
     })
     .catch(err => {
       const error = new Error(err);

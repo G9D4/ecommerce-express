@@ -33,18 +33,44 @@ exports.getHome = (req, res, next) => {
       ]);
     })
     .then(([documentCount, productos, categorias]) => {
+      const categoria_id = categoria_ruta ? categorias.find(x => x.ruta == categoria_ruta) : null;
       const titulo = categoria_ruta
-        ? `Categoría: ${categorias.find(cat => cat.ruta === categoria_ruta)?.categoria || 'No encontrada'}`
+        ? `${categorias.find(cat => cat.ruta === categoria_ruta)?.categoria || 'No encontrada'}`
         : 'Página principal de la Tienda';
+
+      // res.render(
+      //   if (categoria_ruta) {
+      //     return 'tienda/index',{
+      //         prods: productos,
+      //         prodsLength: documentCount,
+      //         categorias: categorias,
+      //         titulo: titulo,
+      //         path: `/${categoria_ruta || ''}`,
+      //         autenticado: req.session.autenticado,
+      //         page: page,
+      //         lastPage: Math.ceil(documentCount / ITEMS_PER_PAGE),
+      //         sortBy: 'position',
+      //         thirdBreadcrumb: false,
+      //         categoriaRuta: categoria_ruta,
+      //         categoria: `${categoria_id.categoria}`,
+      //       }
+      //   }
+      // );
+
 
       res.render(categoria_ruta ? 'tienda/index' : 'tienda/home', {
         prods: productos,
+        prodsLength: documentCount,
         categorias: categorias,
         titulo: titulo,
         path: `/${categoria_ruta || ''}`,
         autenticado: req.session.autenticado,
         page: page,
         lastPage: Math.ceil(documentCount / ITEMS_PER_PAGE),
+        sortBy: 'position',
+        thirdBreadcrumb: false,
+        categoriaRuta: categoria_ruta,
+        categoria: categoria_ruta ? categoria_id.categoria : '',
       });
     })
     .catch(err => {
@@ -64,15 +90,18 @@ exports.getProductos = (req, res, next) => {
     Producto.find(categoria_id ? { categoria_id: categoria_id } : {})
       .populate('categoria_id')
       .then(productos => {
-        productos.forEach(producto => { 
-          producto.categoria = producto.categoria_id.categoria 
+        productos.forEach(producto => {
+          producto.categoria = producto.categoria_id.categoria
         });
         res.render('tienda/index', {
           prods: productos,
-          categorias: categorias, 
-          titulo: "Productos de la tienda",
+          titulo: `${categoria_id.categoria}`,
+          categoria: `${categoria_id.categoria}`,
+          categoriaRuta: categoria_ruta,
+          sortBy: 'position',
           path: `/${categoria_ruta || ""}`,
-          autenticado: req.session.autenticado
+          thirdBreadcrumb: false,
+          autenticado: req.session.autenticado,
         });
       })
       .catch(err => {
@@ -81,13 +110,43 @@ exports.getProductos = (req, res, next) => {
         return next(error);
       });
   })
-  .catch(err => {
-    const error = new Error(err);
-    error.httpStatusCode = 500;
-    return next(error);
-  });
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
+exports.getProductosSorted = async (req, res) => {
+  const sortBy = req.query.productOrder
+  const categoria_ruta = req.params.categoria_ruta ? req.params.categoria_ruta : null;
+  const categorias = await Categoria.find().then(categorias => { return categorias });
+  const categoria_id = categoria_ruta ? categorias.find(x => x.ruta == categoria_ruta) : null;
+
+  Producto.find(categoria_id ? { categoria_id: categoria_id } : {}).populate('categoria_id')
+    .then(productos => {
+      productos.forEach(producto => { producto.categoria = producto.categoria_id.categoria })
+      if (sortBy === 'low-price') {
+        productos.sort((a, b) => a.precio - b.precio);
+      } else if (sortBy === 'high-price') {
+        productos.sort((a, b) => b.precio - a.precio);
+      } else if (sortBy === 'name') {
+        productos.sort((a, b) => a.nombreproducto.localeCompare(b.nombreproducto));
+      }
+
+      res.render('tienda/index', {
+        prods: productos,
+        titulo: `${categoria_id.categoria}`,
+        categoria: `${categoria_id.categoria}`,
+        categoriaRuta: categoria_ruta,
+        sortBy: sortBy,
+        path: `/${categoria_ruta || ""}`,
+        autenticado: req.session.autenticado
+      });
+    })
+    .catch(err => console.log(err));
+
+};
 
 exports.getCarrito = async (req, res, next) => {
   req.usuario
@@ -96,7 +155,6 @@ exports.getCarrito = async (req, res, next) => {
       const productos = usuario.carrito.productos;
       productos.forEach(x => x.dataProducto = x.idProducto);
 
-      // console.log('productos', productos)
       res.render('tienda/carrito', {
         path: '/carrito',
         titulo: 'Mi Carrito',
@@ -157,94 +215,100 @@ exports.postEliminarProductoCarrito = async (req, res) => {
 exports.getProducto = (req, res) => {
   const idProducto = req.params.idProducto;
   Producto.findById(idProducto).then((producto) => {
-    res.render("tienda/detalle-producto", {
-      producto: producto,
-      titulo: producto.nombre,
-      path: "/",
-    });
+    Categoria.findById(producto.categoria_id).then((p) => {
+      res.render("tienda/detalle-producto", {
+        producto: producto,
+        titulo: producto.nombreproducto,
+        categoria: p.categoria,
+        categoriaRuta: p.ruta,
+        path: "/",
+        thirdBreadcrumb: true,
+      });
+    })
   });
 };
 
 exports.getPedidos = (req, res, next) => {
   req.usuario
-      Pedido.find({ 'usuario.idUsuario': req.usuario._id })
-      .then(pedidos => {
-          res.render('tienda/pedidos', {
-              path: '/pedidos',
-              titulo: 'Mis Pedidos',
-              pedidos: pedidos,
-              autenticado: req.session.autenticado
-          });
-      })
-      .catch(err => {
-        const error = new Error(err);
-        error.httpStatusCode = 500;
-        return next(error);
+  Pedido.find({ 'usuario.idUsuario': req.usuario._id })
+    .then(pedidos => {
+      res.render('tienda/pedidos', {
+        path: '/pedidos',
+        titulo: 'Mis Pedidos',
+        pedidos: pedidos,
+        autenticado: req.session.autenticado
       });
+    })
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
 exports.postPedido = (req, res, next) => {
   req.usuario
-      .populate('carrito.productos.idProducto')
-      .then(usuario => {
+    .populate('carrito.productos.idProducto')
+    .then(usuario => {
       const productos = usuario.carrito.productos.map(i => {
-          return { 
-            cantidad: i.cantidad, 
-            producto: { ...i.idProducto._doc } 
-          };
+        return {
+          cantidad: i.cantidad,
+          producto: { ...i.idProducto._doc }
+        };
       });
       const pedido = new Pedido({
-          usuario: {
-            nombres: req.usuario.nombres,
-            apellidos: req.usuario.apellidos,
-            email: req.usuario.email,
-            // telefono: req.usuario.telefono
-            idUsuario: req.usuario
-          },
-          productos: productos
+        usuario: {
+          nombres: req.usuario.nombres,
+          apellidos: req.usuario.apellidos,
+          email: req.usuario.email,
+          // telefono: req.usuario.telefono
+          idUsuario: req.usuario
+        },
+        productos: productos
       });
       return pedido.save();
-      })
-      .then(result => {
-          return req.usuario.limpiarCarrito();
-      })
-      .then(() => {
-          res.redirect('/pedidos');
-      })
-      .catch(err => {
-        const error = new Error(err);
-        error.httpStatusCode = 500;
-        return next(error);
-      });
+    })
+    .then(result => {
+      return req.usuario.limpiarCarrito();
+    })
+    .then(() => {
+      res.redirect('/pedidos');
+    })
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
 exports.getCarritoDesplegable = (req, res, next) => {
   req.usuario
-      .populate('carrito.productos.idProducto')
-      .then(usuario => {
-          const productosCarrito = usuario.carrito.productos.map(item => {
-              return {
-                  id: item.idProducto._id,
-                  nombreproducto: item.idProducto.nombreproducto,
-                  cantidad: item.cantidad,
-                  precio: item.idProducto.precio
-              };
-          });
-
-          const precioTotal = productosCarrito.reduce((total, item) => {
-              return total + item.precio * item.cantidad; // Calcular el precio total del carrito
-          }, 0);
-
-          res.json({
-              productos: productosCarrito,
-              precioTotal: precioTotal
-          });
-      })
-      .catch(err => {
-        const error = new Error(err);
-        error.httpStatusCode = 500;
-        return next(error);  
+    .populate('carrito.productos.idProducto')
+    .then(usuario => {
+      const productosCarrito = usuario.carrito.productos.map(item => {
+        return {
+          id: item.idProducto._id,
+          nombreproducto: item.idProducto.nombreproducto,
+          cantidad: item.cantidad,
+          precio: item.idProducto.precio,
+          imagen: item.idProducto.urlImagen
+        };
       });
+
+      const precioTotal = productosCarrito.reduce((total, item) => {
+        return total + item.precio * item.cantidad; // Calcular el precio total del carrito
+      }, 0);
+
+      res.json({
+        productos: productosCarrito,
+        precioTotal: precioTotal
+      });
+    })
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
 exports.modificarCantidadCarrito = (req, res, next) => {

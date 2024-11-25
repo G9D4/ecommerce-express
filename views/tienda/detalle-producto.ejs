@@ -4,34 +4,33 @@
 
     <body>
         <%- include('../includes/header-publicidad.ejs') %>
-        <%- include('../includes/navigation.ejs') %>
-            <main class="centered">
-                <div class="product-container">
+            <%- include('../includes/navigation.ejs') %>
+                <%- include('../includes/breadcrumbs.ejs') %>
+                    <main class="centered">
 
-                    <div class="product-left">
-                        <div class="product-image">
+
+                        <div class="product-left">
                             <img src="/<%= producto.urlImagen %>" alt="<%= producto.nombreproducto %>" />
                         </div>
-                    </div>
 
-                    <div class="product-right">
-                        <h1>
-                            <%= producto.nombreproducto %>
-                        </h1>
-                        <span class="price">$<%= producto.precio %></span>
-                        <p>
-                            <%= producto.descripcion %>
-                        </p>
-
-                        <% if (producto.caracteristicas && producto.caracteristicas.length> 0) { %>
-                            <ul>
-                                <% for (let c of producto.caracteristicas) { %>
-                                    <li>
-                                        <%= c %>
-                                    </li>
-                                    <% } %>
-                            </ul>
-                            <% } %>
+                        <div class="product-right">
+                            <h1>
+                                <%= producto.nombreproducto %>
+                            </h1>
+                            <span class="price">S/. <%= producto.precio %></span>
+                            <div class="card-bottom">
+                                <p>
+                                    <%= producto.descripcion %>
+                                </p>
+                                <% if (producto.caracteristicas && producto.caracteristicas.length> 0) { %>
+                                    <ul>
+                                        <% for (let c of producto.caracteristicas) { %>
+                                            <li>
+                                                <%= c %>
+                                            </li>
+                                        <% } %>
+                                    </ul>
+                                <% } %>
                                 <% if (typeof user=='object' && user){ %>
                                     <form action="/carrito" method="post">
                                         <div class="quantity-selector">
@@ -42,9 +41,10 @@
                                         <button class="btn" type="submit">Agregar al carrito</button>
                                         <input type="hidden" name="idProducto" value="<%= producto._id %>">
                                     </form>
-                                    <% }%>
-                    </div>
-                </div>
-            </main>
-            <%- include('../includes/end.ejs') %>
+                                <% }%>
+                            </div>
+                        </div>
+
+                    </main>
+                    <%- include('../includes/end.ejs') %>
     </body>
